@@ -1,0 +1,77 @@
+<div class="main">
+    <div class="top">
+        <div class="b00">
+            Саморазвитие • Здоровье • Бизнес
+        </div>
+
+        <div class="b01">
+            <span>Коуч</span>
+            <span>Ведущий мастермайндов</span>
+            <span>Инструктор по медитации</span>
+            <span class="i">4+ года</span>
+        </div>
+
+        <div class="name">
+            АНАНДА ШАДРИН
+        </div>
+    </div>
+
+    <div class="cont">
+        <h3>УСЛУГИ</h3>
+
+        <a href="/mastermind" class="a1 bA">
+            Группа по похуданию
+        </a>
+        <a href="/coaching" class="a2 bA">
+            Индивидуальный коучинг
+        </a>
+
+        <h3>ТЕХНИКИ ДЛЯ ПОХУДАНИЯ</h3>
+        <div class="articles-list">
+            <% if (articles && articles.length > 0) { %>
+                <%
+                    let m = articles.filter( article => article.isTechnique)
+
+
+                m.forEach(article => { %>
+                    <a href="/texts/<%= article.slug %>">
+                        <%= article.title %>
+                    </a>
+                <% }); %>
+            <% } else { %>
+                <p>Статей пока нет.</p>
+            <% } %>
+        </div>
+        <h3>СТАТЬИ</h3>
+        <div class="articles-list">
+            <%
+            let m = articles.filter( article => article.isArrticle)
+            if (m && m.length > 0) { %>
+                <% m.forEach(article => { %>
+                    <a href="/texts/<%= article.slug %>">
+                        <%= article.title %>
+                    </a>
+                <% }); %>
+            <% } else { %>
+                <p>Статей пока нет.</p>
+            <% } %>
+        </div>
+
+
+
+        <h3>КОНТАКТЫ</h3>
+        <a href="https://t.me/ananda_uz" class="a3 bA" target="_blank" rel="Cообщение в Телеграм">Cообщение в Телеграм</a>
+
+        <h3>ССЫЛКИ</h3>
+        <a href="https://www.youtube.com/@eshouz" class="a4 bA" target="_blank" rel="YouTube канал">YouTube канал</a>
+        <a href="https://t.me/ananda_uzc" class="a5 bA" target="_blank" rel="Телеграм канал">Телеграм канал</a>
+        <a href="https://www.instagram.com/esholuchshe/" class="a6 bA" target="_blank" rel="Мой инстаграм">Мой инстаграм</a>
+
+
+
+
+
+
+
+    </div>
+</div>

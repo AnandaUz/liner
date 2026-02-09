@@ -1,0 +1,39 @@
+# Зависимости
+node_modules/
+jspm_packages/
+
+# Логи
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Данные и окружение
+.data/
+.env
+.env.test
+.env.production
+
+# IDE и редакторы
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Операционная система
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Скомпилированные файлы и артефакты
+public/css/*.map
+dist/
+build/
+
+# Временные файлы
+.output.txt
