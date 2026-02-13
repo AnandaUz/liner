@@ -1,22 +1,15 @@
-<%- include('./partials/top.ejs') %>
-
+<%- include('partials/top',{
+    user:user
+}) %>
 <main>
-
-
-    <div class="container">
-
-        <%- include(centerPartial) %>
-
-    </div>
-
-
+    <%- include(body) %>
 </main>
+<footer class="footer">
 
-<%- include('./partials/bottom.ejs') %>
-
-
-
-
-
-
-
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<% if (typeof script !== 'undefined') { %>
+    <script type="module" src="<%= script %>"></script>
+<% } %>
+</body>
+</html>

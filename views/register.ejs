@@ -1,0 +1,41 @@
+<style>
+    .register-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        margin: 0;
+    }
+    .register-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+    }
+</style>
+<div class="register-container">
+    <div class="register-card">
+        <h2 class="text-center mb-4">Регистрация</h2>
+        <form action="/register" method="POST">
+            <div class="mb-3">
+                <label for="name" class="form-label">Ваше имя</label>
+                <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" required>
+            </div>
+            <div class="mb-3">
+                <label for="weightStart" class="form-label">Текущий вес (кг)</label>
+                <input type="number" step="0.01" class="form-control" id="weightStart" name="weightStart" required>
+            </div>
+            <div class="mb-3">
+                <label for="goal" class="form-label">Цель (финальный вес, кг)</label>
+                <input type="number" step="0.01" class="form-control" id="goal" name="goal" required>
+            </div>
+            <div class="mb-3">
+                <label for="targetDate" class="form-label">Планируемая дата достижения цели</label>
+                <input type="date" class="form-control" id="targetDate" name="targetDate" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
+        </form>
+    </div>
+</div>

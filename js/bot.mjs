@@ -1,4 +1,5 @@
 import { Telegraf } from 'telegraf';
+import sharp from 'sharp';
 import { User } from './models/users.mjs';
 import { WeightLog } from './models/weightLog.mjs';
 
@@ -8,10 +9,47 @@ const userState = new Map();
 /* /start */
 bot.start(async (ctx) => {
     const telegramId = ctx.from.id;
+    const payload = ctx.payload; // USER_ID из ссылки t.me/bot?start=USER_ID
 
-    const user = await User.findOne({ telegramId });
+    let user = await User.findOne({ telegramId });
+
+    if (payload) {
+        // Попытка привязать существующий аккаунт
+        try {
+            const existingUser = await User.findById(payload);
+            if (!existingUser) {
+                await ctx.reply('Пользователь не найден. Попробуй еще раз через сайт.');
+                return;
+            }
+
+            if (existingUser.telegramId) {
+                if (existingUser.telegramId === telegramId) {
+                    await ctx.reply('Этот аккаунт уже привязан к твоему Telegram.');
+                } else {
+                    await ctx.reply('Этот аккаунт уже привязан к другому Telegram.');
+                }
+                return;
+            }
+
+            // Проверяем, не привязан ли этот telegramId уже к кому-то другому
+            if (user) {
+                await ctx.reply('Твой Telegram уже привязан к другому аккаунту.');
+                return;
+            }
+
+            existingUser.telegramId = telegramId;
+            await existingUser.save();
+            await ctx.reply(`Аккаунт успешно привязан! Привет, ${existingUser.name}. Теперь ты можешь присылать свой вес.`);
+            return;
+        } catch (err) {
+            console.error('Error linking telegram:', err);
+            await ctx.reply('Произошла ошибка при привязке аккаунта.');
+            return;
+        }
+    }
+
     if (user) {
-        await ctx.reply('Ты уже зарегистрирован');
+        await ctx.reply(`Привет, ${user.name}! Ты уже зарегистрирован. Присылай свой вес.`);
         return;
     }
 
@@ -79,7 +117,43 @@ async function addWeight(ctx, user = ctx.from) {
     );
 
     await ctx.reply('Вес сохранён');
+    
+    // sendSvgAsPng(ctx)
 
+    //- --------
+
+
+}
+async function sendSvgAsPng(ctx) {
+    // 1. SVG
+    const svg = `
+  <svg width="500" height="500" viewBox="0 0 500 500"
+       xmlns="http://www.w3.org/2000/svg">
+    
+    <!-- белый фон -->
+    <rect x="0" y="0" width="500" height="500" fill="white" />
+
+    <!-- красный круг по центру -->
+    <circle cx="250" cy="250" r="100" fill="red" />
+
+  </svg>
+  `;
+
+    try {
+        // 2. SVG → PNG
+        const pngBuffer = await sharp(Buffer.from(svg))
+            .png()
+            .toBuffer();
+
+        // 3. Отправка в Telegram пользователю
+        await ctx.replyWithPhoto(
+            { source: pngBuffer },
+            { caption: 'График веса (пример)' }
+        );
+    } catch (err) {
+        console.error('Error in sendSvgAsPng:', err);
+        await ctx.reply('Ошибка при генерации изображения');
+    }
 }
 
 /* Текстовые сообщения */

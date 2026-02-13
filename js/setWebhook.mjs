@@ -10,7 +10,7 @@ const bot = new Telegraf(process.env.BOT_LINER_TOKEN);
 // Настройка вебхука
 
 
-const grokUrl = '503dd10771c0'
-const url = 'https://'+grokUrl+'.ngrok-free.app/api/bot_isee'
+const grokUrl = '7ca1-92-253-192-234'
+const url = 'https://'+grokUrl+'.ngrok-free.app/api'
 
 bot.telegram.setWebhook(url);
