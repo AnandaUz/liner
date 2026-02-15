@@ -86,8 +86,9 @@ function renderUserData(data) {
 
     const scaleY = (heightCanvas-canvasOptions.paddingV) / (max - min);
 
+    const dayCount = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
-    const step = (widthCanvas-canvasOptions.paddingH) / filteredLogs.length;
+    const step = (widthCanvas-canvasOptions.paddingH) / dayCount;
 
     const dispD = {
         step,

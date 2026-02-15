@@ -121,8 +121,6 @@ async function addWeight(ctx, user = ctx.from) {
     // sendSvgAsPng(ctx)
 
     //- --------
-
-
 }
 async function sendSvgAsPng(ctx) {
     // 1. SVG
