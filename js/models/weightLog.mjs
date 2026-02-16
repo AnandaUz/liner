@@ -7,6 +7,14 @@ const weightLogSchema = new mongoose.Schema({
     comment: {
         type: String,
         default: undefined
+    },
+    opt1: {
+        type: Number,
+        default: undefined
+    },
+    opt2: {
+        type: Number,
+        default: undefined
     }
 });
 weightLogSchema.index(
@@ -16,6 +24,12 @@ weightLogSchema.index(
 weightLogSchema.pre('save', function(next) {
     if (this.comment === "" || this.comment === null) {
         this.comment = undefined; // Удаляет поле из итогового документа MongoDB
+    }
+    if (this.opt1 === null || Number.isNaN(this.opt1)) {
+        this.opt1 = undefined;
+    }
+    if (this.opt2 === null || Number.isNaN(this.opt2)) {
+        this.opt2 = undefined;
     }
     next();
 });

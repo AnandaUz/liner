@@ -11,6 +11,7 @@ yarn-error.log*
 
 # Данные и окружение
 .data/
+js_tools/
 .env
 .env.test
 .env.production

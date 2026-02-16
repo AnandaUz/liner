@@ -72,7 +72,7 @@ function renderUserData(data) {
     // const startDate = new Date('2025-08-01');
     // const startDate = new Date('2026-01-01');
     const endDate = new Date();
-    const startDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate()-45)
+    const startDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate()-60)
 
     const filteredLogs = weightLogs.filter(item => {
         const itemDate = new Date(item.date);
@@ -80,11 +80,11 @@ function renderUserData(data) {
     });
 
     const wLogs = filteredLogs.map(log => log.weight)
-    const max = Math.max(...wLogs);
-    const min = Math.min(...wLogs);
+    const maxW = Math.max(...wLogs);
+    const minW = Math.min(...wLogs);
 
 
-    const scaleY = (heightCanvas-canvasOptions.paddingV) / (max - min);
+    const scaleY = (heightCanvas-canvasOptions.paddingV) / (maxW - minW);
 
     const dayCount = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
@@ -92,7 +92,9 @@ function renderUserData(data) {
 
     const dispD = {
         step,
-        minValue:min,
+        minWeight: minW,
+        maxWeight: maxW,
+
         scaleY
     }
 
@@ -101,8 +103,7 @@ function renderUserData(data) {
         startDate,
         endDate,
         dispD,
-        minWeight:min,
-        maxWeight:max
+
     })
 
     ctx.lineCap = 'round';    // закругленные края
@@ -136,7 +137,7 @@ function renderUserData(data) {
         strokeStyle:`rgba(188,7,185,${opacity})`
         ,lineWidth:lWidth
         ,step,
-        minValue:min,
+        minValue:minW,
         scaleY
     })
     mV1 = loess(mm,0.5)
@@ -146,7 +147,7 @@ function renderUserData(data) {
         strokeStyle:`rgba(8,95,251,${opacity})`
         ,lineWidth:lWidth
         ,step,
-        minValue:min,
+        minValue:minW,
         scaleY
     })
 
@@ -156,13 +157,13 @@ function renderUserData(data) {
         strokeStyle:"#02a14c"
         ,lineWidth:1
         ,step,
-        minValue:min,
+        minValue:minW,
         scaleY
     })
     drawInfo({
             mas: mm,
             step,
-            minValue: min,
+            minValue: minW,
             scaleY
         }
     )
@@ -174,12 +175,11 @@ function drawDayLine({
                          startDate,
                          endDate,
     dispD,
-    minWeight=0,
-    maxWeight=0,
                      }) {
 
     const step = dispD.step;
-    const minValue = dispD.minValue;
+    const minWeight = dispD.minWeight;
+    const maxWeight = dispD.maxWeight;
     const scaleY = dispD.scaleY;
 
     const dayCount = (endDate - startDate) / (1000 * 60 * 60 * 24);
@@ -227,7 +227,7 @@ function drawDayLine({
 
     const st = 0.5
 
-    const sW = Math.ceil(minWeight * st) / st
+    const sW = Math.ceil(minWeight / st)*st
     const dH = sW-minWeight
 
 
