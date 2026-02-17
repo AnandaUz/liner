@@ -116,7 +116,57 @@ async function addWeight(ctx, user = ctx.from) {
         }
     );
 
-    await ctx.reply('Вес сохранён');
+    const dNow = new Date();
+    dNow.setHours(12, 0, 0, 0);
+
+    let diffText = '';
+    let predDate = null
+    let diff = 0
+    if (user.last_data) {
+        predDate = new Date(user.last_data.date);
+        if (user.last_data.weight) {
+            diff = weight - user.last_data.weight;
+            const sign = diff > 0 ? '+' : '';
+            diffText = ` (${sign}${diff.toFixed(2)})`;
+
+            if (user.last_data.mess_id) {
+                try {
+                    await ctx.telegram.deleteMessage(ctx.chat.id, user.last_data.mess_id);
+                } catch (err) {
+                    console.error('Error deleting old message:', err);
+                }
+            }
+        }
+    }
+    if (predDate && dNow === predDate) {
+        const w = user.last_data.weight - weight
+
+        diff = weight - w;
+        const sign = diff > 0 ? '+' : '';
+        diffText = ` (${sign}${diff.toFixed(2)} кг)`;
+    } else {
+
+    }
+    const userUrl = `https://linerapp.vercel.app/user/${user._id}`;
+    const sentMsg = await ctx.reply(`Вес сохранён: ${weight} кг${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
+
+    // Сохраняем данные в user
+    await User.findByIdAndUpdate(user._id, {
+        last_data: {
+            weight,
+            date: dNow,
+            mess_id: sentMsg.message_id,
+            weight_delta:diff,
+        }
+    });
+
+    // Отправка уведомления админу
+    const adminId = process.env.ADMIN_LINER_ID;
+    if (adminId) {
+
+        ctx.telegram.sendMessage(adminId, `🧿 ${user.name} : ${weight} кг ${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
+            .catch(err => console.error('Error sending admin notification (addWeight):', err));
+    }
     
     // sendSvgAsPng(ctx)
 

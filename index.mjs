@@ -12,6 +12,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { User } from "./js/models/users.mjs";
 import { WeightLog } from "./js/models/weightLog.mjs";
 import { connectDB } from "./js/db.mjs";
+import bot from "./js/bot.mjs";
 
 connectDB();
 
@@ -158,11 +159,18 @@ app.post("/register", async (req, res) => {
             console.log("User found in DB:", user._id);
             user.name = name;
             user.weightStart = Number(weightStart);
-            user.goal = Number(goal);
-            user.targetDate = new Date(targetDate);
+            // user.goal = Number(goal);
+            // user.targetDate = new Date(targetDate);
             user.isRegistered = true;
             await user.save();
             console.log("User updated successfully");
+
+            // Отправка уведомления админу
+            const adminId = process.env.ADMIN_LINER_ID;
+            if (adminId) {
+                bot.telegram.sendMessage(adminId, `Прошла регистрация: ${user.name}`)
+                    .catch(err => console.error("Error sending admin notification:", err));
+            }
 
             // Обновляем токен, так как статус регистрации изменился
             const updatedUserData = {

@@ -9,6 +9,12 @@ const userSchema = new mongoose.Schema({
     goal: Number,
     targetDate: Date,
     isRegistered: { type: Boolean, default: false },
+    last_data: {
+        weight: Number,
+        date: Date,
+        mess_id: Number,
+        weight_delta: Number,
+    },
     createdAt: { type: Date, default: Date.now }
 });
 

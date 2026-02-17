@@ -40,13 +40,13 @@ function renderUserData(data) {
     const { user, weightLogs } = data;
 
     document.getElementById('user-name').textContent = user.name || 'Пользователь';
-    document.getElementById('weight-start').textContent = user.weightStart || '-';
-    document.getElementById('weight-goal').textContent = user.goal || '-';
+    // document.getElementById('weight-start').textContent = user.weightStart || '-';
+    // document.getElementById('weight-goal').textContent = user.goal || '-';
     
-    if (user.targetDate) {
-        const date = new Date(user.targetDate);
-        document.getElementById('target-date').textContent = date.toLocaleDateString('ru-RU');
-    }
+    // if (user.targetDate) {
+    //     const date = new Date(user.targetDate);
+    //     document.getElementById('target-date').textContent = date.toLocaleDateString('ru-RU');
+    // }
     
     //canvas
     const canvas = document.getElementById('weight-chart');
@@ -69,24 +69,42 @@ function renderUserData(data) {
 
 
 
-    // const startDate = new Date('2025-08-01');
-    // const startDate = new Date('2026-01-01');
+    if (weightLogs.length === 0) return;
+
+    // Оптимальный поиск min/max дат (так как weightLogs уже отсортированы API)
+    const minT = new Date(weightLogs[0].date)
+    const maxT = new Date(weightLogs[weightLogs.length - 1].date)
+
     const endDate = new Date();
-    const startDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate()-60)
+    let startDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate()-45)
+
+    if (startDate < minT) startDate = minT
 
     const filteredLogs = weightLogs.filter(item => {
         const itemDate = new Date(item.date);
         return itemDate >= startDate && itemDate <= endDate;
     });
 
-    const wLogs = filteredLogs.map(log => log.weight)
-    const maxW = Math.max(...wLogs);
-    const minW = Math.min(...wLogs);
+    // Оптимальный поиск min/max веса без риска переполнения стека
+    let minW = Infinity;
+    let maxW = -Infinity;
+    
+    filteredLogs.forEach(log => {
+        if (log.weight < minW) minW = log.weight;
+        if (log.weight > maxW) maxW = log.weight;
+    });
+
+    if (minW === Infinity) {
+        minW = 0;
+        maxW = 200;
+    }
 
 
     const scaleY = (heightCanvas-canvasOptions.paddingV) / (maxW - minW);
 
-    const dayCount = (endDate - startDate) / (1000 * 60 * 60 * 24);
+    let dayCount = (endDate - startDate) / (1000 * 60 * 60 * 24);
+
+    // if (dayCount > filteredLogs.length) dayCount = filteredLogs.length;
 
     const step = (widthCanvas-canvasOptions.paddingH) / dayCount;
 
