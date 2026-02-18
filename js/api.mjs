@@ -11,8 +11,8 @@ export default async function handler(req, res) {
         await connectDB();
 
         // Проверяем, не является ли это командой для напоминания (например, через Cron Job)
-        // URL вида: /api/webhook?task=reminder
-        if (req.query && req.query.task === 'reminder') {
+        // URL вида: /api/reminder или /api/webhook?task=reminder
+        if ((req.query && req.query.task === 'reminder') || req.path === '/reminder' || req.path === '/api/reminder') {
             await doReminder();
             res.status(200).send('Reminder sent');
             return;

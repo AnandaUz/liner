@@ -261,6 +261,7 @@ app.get("/api/user-data/:id", async (req, res) => {
 });
 
 app.post("/api", api);
+app.all("/api/reminder", api);
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
