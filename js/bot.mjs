@@ -138,7 +138,7 @@ async function addWeight(ctx, user = ctx.from) {
             }
         }
     }
-    if (predDate && dNow === predDate) {
+    if (predDate && dNow.getTime() === predDate.getTime()) {
         const w = user.last_data.weight - weight
 
         diff = weight - w;
@@ -171,6 +171,38 @@ async function addWeight(ctx, user = ctx.from) {
     // sendSvgAsPng(ctx)
 
     //- --------
+}
+export async function doReminder() {
+    console.log('Starting doReminder task...');
+    try {
+        const dNow = new Date();
+        dNow.setHours(12, 0, 0, 0);
+
+        // Находим всех пользователей, у которых есть telegramId
+        // и у которых либо нет last_data.date, либо дата там не совпадает с dNow
+        const usersToRemind = await User.find({
+            telegramId: { $exists: true },
+            $or: [
+                { 'last_data.date': { $lt: dNow } },
+                { 'last_data.date': { $exists: false } },
+                { 'last_data': { $exists: false } }
+            ]
+        });
+
+        console.log(`Found ${usersToRemind.length} users to remind.`);
+
+        for (const user of usersToRemind) {
+            try {
+                await bot.telegram.sendMessage(user.telegramId, 'Прошу ввести ваши данные');
+                console.log(`Reminder sent to ${user.name} (${user.telegramId})`);
+            } catch (err) {
+                console.error(`Error sending reminder to ${user.name} (${user.telegramId}):`, err);
+            }
+        }
+        console.log('doReminder task finished.');
+    } catch (err) {
+        console.error('Error in doReminder:', err);
+    }
 }
 async function sendSvgAsPng(ctx) {
     // 1. SVG
@@ -254,5 +286,6 @@ bot.on('text', async (ctx) => {
 
     addWeight(ctx,user)
 });
+
 
 export default bot;
