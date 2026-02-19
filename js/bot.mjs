@@ -93,6 +93,17 @@ async function addWeight(ctx, user = ctx.from) {
     /* 4. Комментарий */
     const comment = match[3]?.trim() || '';
 
+    const userUrl = `https://linerapp.vercel.app/user/${user._id}`;
+
+    const str = `Вес сохранён: ${weight} кг${diffText}`
+    const sentMsg = await ctx.reply(`Вес сохранён: ${weight} кг${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
+
+    const adminId = process.env.ADMIN_LINER_ID;
+    if (adminId) {
+        await ctx.telegram.sendMessage(adminId, `🧿 ${user.name} : ${weight} кг ${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
+            .catch(err => console.error('Error sending admin notification (addWeight):', err));
+    }
+
     /* 5. Обновление или создание записи */
     const dayStart = new Date(date);
     dayStart.setHours(0, 0, 0, 0);
@@ -147,8 +158,7 @@ async function addWeight(ctx, user = ctx.from) {
     } else {
 
     }
-    const userUrl = `https://linerapp.vercel.app/user/${user._id}`;
-    const sentMsg = await ctx.reply(`Вес сохранён: ${weight} кг${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
+
 
     // Сохраняем данные в user
     await User.findByIdAndUpdate(user._id, {
@@ -161,12 +171,8 @@ async function addWeight(ctx, user = ctx.from) {
     });
 
     // Отправка уведомления админу
-    const adminId = process.env.ADMIN_LINER_ID;
-    if (adminId) {
 
-        ctx.telegram.sendMessage(adminId, `🧿 ${user.name} : ${weight} кг ${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
-            .catch(err => console.error('Error sending admin notification (addWeight):', err));
-    }
+
     
     // sendSvgAsPng(ctx)
 
