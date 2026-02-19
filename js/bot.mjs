@@ -98,21 +98,6 @@ async function addWeight(ctx, user = ctx.from) {
 
     let diffText = ''
     // const str = `Вес сохранён: ${weight} кг${diffText}`
-    const tReplyStart = Date.now();
-    const sentMsg = await ctx.reply(`Вес сохранён: ${weight} кг${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
-    const tReplyEnd = Date.now();
-    console.log(`addWeight timing: ctx.reply ${tReplyEnd - tReplyStart}ms`);
-
-    const adminId = process.env.ADMIN_LINER_ID;
-    if (adminId) {
-        const tAdminStart = Date.now();
-        await ctx.telegram.sendMessage(adminId, `🧿 ${user.name} : ${weight} кг ${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
-            .then(() => {
-                const tAdminEnd = Date.now();
-                console.log(`addWeight timing: admin notify ${tAdminEnd - tAdminStart}ms`);
-            })
-            .catch(err => console.error('Error sending admin notification (addWeight):', err));
-    }
 
     /* 5. Обновление или создание записи */
     const dayStart = new Date(date);
@@ -137,13 +122,10 @@ async function addWeight(ctx, user = ctx.from) {
             returnDocument: 'after'
         }
     );
-    const tDbEnd = Date.now();
-    console.log(`addWeight timing: db upsert ${tDbEnd - tDbStart}ms`);
 
     const dNow = new Date();
     dNow.setHours(12, 0, 0, 0);
 
-    // let diffText = '';
     let predDate = null
     let diff = 0
     if (user.last_data) {
@@ -166,9 +148,18 @@ async function addWeight(ctx, user = ctx.from) {
         const w = user.last_data.weight - weight
 
         diff = weight - w;
-        // const sign = diff > 0 ? '+' : '';
-        // diffText = ` (${sign}${diff.toFixed(2)} кг)`;
+        const sign = diff > 0 ? '+' : '';
+        diffText = ` (${sign}${diff.toFixed(2)} кг)`;
     } else {
+
+    }
+
+    //отправляем сообщение в ТГ
+    const sentMsg = await ctx.reply(`Вес сохранён: ${weight} кг${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
+
+    const adminId = process.env.ADMIN_LINER_ID;
+    if (adminId) {
+        await ctx.telegram.sendMessage(adminId, `🧿 ${user.name} : ${weight} кг ${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
 
     }
 
