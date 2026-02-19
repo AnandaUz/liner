@@ -10,17 +10,26 @@ const MONGO_URI =
     `@cluster0.vqcukp6.mongodb.net/${MONGODB_DB}?retryWrites=true&w=majority`;
 
 
-let isConnected = false;
+const globalCache = globalThis.__mongooseCache || (globalThis.__mongooseCache = {
+    conn: null,
+    promise: null
+});
 
 export async function connectDB() {
-    if (isConnected) {
-        return;
+    if (globalCache.conn) {
+        return globalCache.conn;
+    }
+    if (!globalCache.promise) {
+        globalCache.promise = mongoose.connect(MONGO_URI)
+            .then((mongooseInstance) => mongooseInstance);
     }
     try {
-        await mongoose.connect(MONGO_URI);
-        isConnected = true;
+        globalCache.conn = await globalCache.promise;
         console.log('MongoDB connected');
+        return globalCache.conn;
     } catch (err) {
+        globalCache.promise = null;
         console.error('MongoDB connection error:', err);
+        throw err;
     }
 }
