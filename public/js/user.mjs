@@ -76,7 +76,7 @@ function renderUserData(data) {
     const maxT = new Date(weightLogs[weightLogs.length - 1].date)
 
     const endDate = new Date();
-    let startDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate()-45)
+    let startDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate()-30)
 
     if (startDate < minT) startDate = minT
 

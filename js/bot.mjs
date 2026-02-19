@@ -112,7 +112,7 @@ async function addWeight(ctx, user = ctx.from) {
         },
         {
             upsert: true,
-            new: true
+            returnDocument: 'after'
         }
     );
 
@@ -131,7 +131,7 @@ async function addWeight(ctx, user = ctx.from) {
 
             if (user.last_data.mess_id) {
                 try {
-                    await ctx.telegram.deleteMessage(ctx.chat.id, user.last_data.mess_id);
+                    // await ctx.telegram.deleteMessage(ctx.chat.id, user.last_data.mess_id);
                 } catch (err) {
                     console.error('Error deleting old message:', err);
                 }
