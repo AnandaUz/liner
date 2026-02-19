@@ -58,6 +58,7 @@ bot.start(async (ctx) => {
 });
 
 async function addWeight(ctx, user = ctx.from) {
+    const t0 = Date.now();
     const text = ctx.message.text.trim();
     //12.06.26 66.5 какой-то коментарий
     /* 1. Регулярка:
@@ -96,11 +97,19 @@ async function addWeight(ctx, user = ctx.from) {
     const userUrl = `https://linerapp.vercel.app/user/${user._id}`;
 
     const str = `Вес сохранён: ${weight} кг${diffText}`
+    const tReplyStart = Date.now();
     const sentMsg = await ctx.reply(`Вес сохранён: ${weight} кг${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
+    const tReplyEnd = Date.now();
+    console.log(`addWeight timing: ctx.reply ${tReplyEnd - tReplyStart}ms`);
 
     const adminId = process.env.ADMIN_LINER_ID;
     if (adminId) {
+        const tAdminStart = Date.now();
         await ctx.telegram.sendMessage(adminId, `🧿 ${user.name} : ${weight} кг ${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
+            .then(() => {
+                const tAdminEnd = Date.now();
+                console.log(`addWeight timing: admin notify ${tAdminEnd - tAdminStart}ms`);
+            })
             .catch(err => console.error('Error sending admin notification (addWeight):', err));
     }
 
@@ -111,6 +120,7 @@ async function addWeight(ctx, user = ctx.from) {
     const dayEnd = new Date(date);
     dayEnd.setHours(23, 59, 59, 999);
 
+    const tDbStart = Date.now();
     await WeightLog.findOneAndUpdate(
         {
             userId: user._id,
@@ -126,6 +136,8 @@ async function addWeight(ctx, user = ctx.from) {
             returnDocument: 'after'
         }
     );
+    const tDbEnd = Date.now();
+    console.log(`addWeight timing: db upsert ${tDbEnd - tDbStart}ms`);
 
     const dNow = new Date();
     dNow.setHours(12, 0, 0, 0);
@@ -161,6 +173,7 @@ async function addWeight(ctx, user = ctx.from) {
 
 
     // Сохраняем данные в user
+    const tUserUpdateStart = Date.now();
     await User.findByIdAndUpdate(user._id, {
         last_data: {
             weight,
@@ -169,6 +182,8 @@ async function addWeight(ctx, user = ctx.from) {
             weight_delta:diff,
         }
     });
+    const tUserUpdateEnd = Date.now();
+    console.log(`addWeight timing: user update ${tUserUpdateEnd - tUserUpdateStart}ms`);
 
     // Отправка уведомления админу
 
@@ -177,6 +192,8 @@ async function addWeight(ctx, user = ctx.from) {
     // sendSvgAsPng(ctx)
 
     //- --------
+    const tEnd = Date.now();
+    console.log(`addWeight timing: total ${tEnd - t0}ms`);
 }
 export async function doReminder() {
     console.log('Starting doReminder task...');
