@@ -60,7 +60,7 @@ bot.start(async (ctx) => {
 async function addWeight(ctx, user = ctx.from) {
     const t0 = Date.now();
     const text = ctx.message.text.trim();
-    //12.06.26 66.5 какой-то коментарий
+    //12.06.26 66.5 какой-то комментарий
     /* 1. Регулярка:
        - опциональная дата: DD.MM.YY
        - обязательный вес: 66.5 или 66,5
@@ -96,7 +96,8 @@ async function addWeight(ctx, user = ctx.from) {
 
     const userUrl = `https://linerapp.vercel.app/user/${user._id}`;
 
-    const str = `Вес сохранён: ${weight} кг${diffText}`
+    let diffText = ''
+    // const str = `Вес сохранён: ${weight} кг${diffText}`
     const tReplyStart = Date.now();
     const sentMsg = await ctx.reply(`Вес сохранён: ${weight} кг${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
     const tReplyEnd = Date.now();
@@ -142,15 +143,15 @@ async function addWeight(ctx, user = ctx.from) {
     const dNow = new Date();
     dNow.setHours(12, 0, 0, 0);
 
-    let diffText = '';
+    // let diffText = '';
     let predDate = null
     let diff = 0
     if (user.last_data) {
         predDate = new Date(user.last_data.date);
         if (user.last_data.weight) {
             diff = weight - user.last_data.weight;
-            const sign = diff > 0 ? '+' : '';
-            diffText = ` (${sign}${diff.toFixed(2)})`;
+            // const sign = diff > 0 ? '+' : '';
+            // diffText = ` (${sign}${diff.toFixed(2)})`;
 
             if (user.last_data.mess_id) {
                 try {
@@ -165,8 +166,8 @@ async function addWeight(ctx, user = ctx.from) {
         const w = user.last_data.weight - weight
 
         diff = weight - w;
-        const sign = diff > 0 ? '+' : '';
-        diffText = ` (${sign}${diff.toFixed(2)} кг)`;
+        // const sign = diff > 0 ? '+' : '';
+        // diffText = ` (${sign}${diff.toFixed(2)} кг)`;
     } else {
 
     }
