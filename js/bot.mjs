@@ -99,6 +99,15 @@ async function addWeight(ctx, user = ctx.from) {
     let diffText = ''
     // const str = `Вес сохранён: ${weight} кг${diffText}`
 
+    //отправляем сообщение в ТГ
+    const sentMsg = await ctx.reply(`Вес сохранён: ${weight} кг${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
+    // Отправка уведомления админу
+    const adminId = process.env.ADMIN_LINER_ID;
+    if (adminId) {
+        await ctx.telegram.sendMessage(adminId, `🧿 ${user.name} : ${weight} кг ${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
+
+    }
+
     /* 5. Обновление или создание записи */
     const dayStart = new Date(date);
     dayStart.setHours(0, 0, 0, 0);
@@ -154,14 +163,7 @@ async function addWeight(ctx, user = ctx.from) {
 
     }
 
-    //отправляем сообщение в ТГ
-    const sentMsg = await ctx.reply(`Вес сохранён: ${weight} кг${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
 
-    const adminId = process.env.ADMIN_LINER_ID;
-    if (adminId) {
-        await ctx.telegram.sendMessage(adminId, `🧿 ${user.name} : ${weight} кг ${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
-
-    }
 
 
     // Сохраняем данные в user
@@ -174,18 +176,8 @@ async function addWeight(ctx, user = ctx.from) {
             weight_delta:diff,
         }
     });
-    const tUserUpdateEnd = Date.now();
-    console.log(`addWeight timing: user update ${tUserUpdateEnd - tUserUpdateStart}ms`);
 
-    // Отправка уведомления админу
-
-
-    
     // sendSvgAsPng(ctx)
-
-    //- --------
-    const tEnd = Date.now();
-    console.log(`addWeight timing: total ${tEnd - t0}ms`);
 }
 export async function doReminder() {
     console.log('Starting doReminder task...');
