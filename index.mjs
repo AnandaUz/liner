@@ -117,7 +117,7 @@ passport.use(
     )
 );
 
-const BOT_USERNAME = process.env.BOT_USERNAME || "weight_liner_bot";
+const LINER_BOT_USERNAME = process.env.LINER_BOT_USERNAME || "weight_liner_bot";
 
 app.get("/", (req, res) => {
     if (req.user && !req.user.isRegistered) {
@@ -126,7 +126,7 @@ app.get("/", (req, res) => {
     res.render("layout", {
         body: "partials/center-index",
         user: req.user,
-        botUsername: BOT_USERNAME,
+        botUsername: LINER_BOT_USERNAME,
         script: "/js/main.mjs"
     });
 });
@@ -166,7 +166,7 @@ app.post("/register", async (req, res) => {
             console.log("User updated successfully");
 
             // Отправка уведомления админу
-            const adminId = process.env.ADMIN_LINER_ID;
+            const adminId = process.env.LINER_BOT_ADMIN;
             if (adminId) {
                 bot.telegram.sendMessage(adminId, `Прошла регистрация: ${user.name}`)
                     .catch(err => console.error("Error sending admin notification:", err));
@@ -227,7 +227,7 @@ app.get("/user/:id", (req, res) => {
         body: "user",
         user: req.user,
         targetUserId: req.params.id,
-        botUsername: BOT_USERNAME,
+        botUsername: LINER_BOT_USERNAME,
         script: "/js/user.mjs"
     });
 });

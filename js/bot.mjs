@@ -3,7 +3,7 @@ import sharp from 'sharp';
 import { User } from './models/users.mjs';
 import { WeightLog } from './models/weightLog.mjs';
 
-const bot = new Telegraf(process.env.BOT_LINER_TOKEN);
+const bot = new Telegraf(process.env.LINER_BOT_TOKEN);
 const userState = new Map();
 
 /* /start */
@@ -102,7 +102,7 @@ async function addWeight(ctx, user = ctx.from) {
     //отправляем сообщение в ТГ
     const sentMsg = await ctx.reply(`Вес сохранён: ${weight} кг${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
     // Отправка уведомления админу
-    const adminId = process.env.ADMIN_LINER_ID;
+    const adminId = process.env.LINER_BOT_ADMIN;
     if (adminId) {
         await ctx.telegram.sendMessage(adminId, `🧿 ${user.name} : ${weight} кг ${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
 
