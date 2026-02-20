@@ -56,7 +56,7 @@ pipeline {
                 script {
                     // Запуск с пробросом порта 3030 и сетью (если сеть wt-network существует в Jenkins)
                     // Добавляем параметр APP_KEY в окружение при запуске
-                    sh "docker run --restart on-failure -p 3030:3030 -e APP_KEY=${params.APP_KEY} -d --name ${IMAGE_NAME} ${IMAGE_NAME}"
+                    sh "docker run --restart on-failure -p 2000:2000 -e APP_KEY=${params.APP_KEY} -d --name ${IMAGE_NAME} ${IMAGE_NAME}"
                 }
             }
         }
