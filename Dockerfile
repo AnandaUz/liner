@@ -18,3 +18,5 @@ EXPOSE 2000
 
 # Запуск вашего основного файла index.mjs
 CMD [ "node", "index.mjs" ]
+
+
