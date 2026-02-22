@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const userId = document.getElementById('target-user-id').value;
+    const targetUserIdEl = document.getElementById('target-user-id') as HTMLInputElement;
+    const userId = targetUserIdEl?.value;
     if (!userId) return;
 
     try {
@@ -10,18 +11,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const data = await response.json();
         renderUserData(data);
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error:', error);
-        document.getElementById('user-name').textContent = 'Ошибка загрузки';
-        document.getElementById('weight-history').innerHTML = `<tr><td colspan="3" class="text-center text-danger">${error.message}</td></tr>`;
+        const userNameEl = document.getElementById('user-name');
+        if (userNameEl) userNameEl.textContent = 'Ошибка загрузки';
+        const weightHistoryEl = document.getElementById('weight-history');
+        if (weightHistoryEl) weightHistoryEl.innerHTML = `<tr><td colspan="3" class="text-center text-danger">${error.message}</td></tr>`;
     }
 });
 
-let ctx = 0
-let widthCanvas = 0
-let heightCanvas = 0
+let ctx: CanvasRenderingContext2D;
+let widthCanvas = 0;
+let heightCanvas = 0;
 
-const canvasOptions = {
+interface CanvasOptions {
+    padding: {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+    };
+    readonly paddingV: number;
+    readonly paddingH: number;
+}
+
+const canvasOptions: CanvasOptions = {
     padding:{
         top:30,
         bottom:30,
@@ -40,33 +54,41 @@ let scale = {
     horiz:30,// пикселей на день
 }
 
-function renderUserData(data) {
+interface UserData {
+    user: {
+        id: string;
+        name?: string;
+        weightStart?: number;
+        goal?: number;
+        targetDate?: string;
+    };
+    weightLogs: {
+        date: string;
+        weight: number;
+    }[];
+}
+
+function renderUserData(data: UserData) {
     const { user, weightLogs } = data;
 
-    document.getElementById('user-name').textContent = user.name || 'Пользователь';
-    // document.getElementById('weight-start').textContent = user.weightStart || '-';
-    // document.getElementById('weight-goal').textContent = user.goal || '-';
+    const userNameEl = document.getElementById('user-name');
+    if (userNameEl) userNameEl.textContent = user.name || 'Пользователь';
     
-    // if (user.targetDate) {
-    //     const date = new Date(user.targetDate);
-    //     document.getElementById('target-date').textContent = date.toLocaleDateString('ru-RU');
-    // }
-
     if (weightLogs.length === 0) return;
     
     //canvas
-    const canvas = document.getElementById('weight-chart');
+    const canvas = document.getElementById('weight-chart') as HTMLCanvasElement;
+    if (!canvas) return;
 
-    ctx = canvas.getContext('2d');
-
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    ctx = context;
 
     // Оптимальный поиск min/max дат (так как weightLogs уже отсортированы API)
     const toDay = new Date();
     const minT = new Date(weightLogs[0].date)
-    const maxT = new Date(weightLogs[weightLogs.length - 1].date)
 
-    const totalDayCount = (toDay - minT) / (1000 * 60 * 60 * 24);
-
+    const totalDayCount = (toDay.getTime() - minT.getTime()) / (1000 * 60 * 60 * 24);
 
     ctx.beginPath();
     ctx.strokeStyle = 'blue'; // цвет линии
@@ -74,23 +96,14 @@ function renderUserData(data) {
     ctx.lineCap = 'round';    // закругленные края
 
     canvas.width = totalDayCount*scale.horiz//canvas.parentElement.clientWidth;
-    canvas.height = canvas.parentElement.offsetHeight;
+    const parent = canvas.parentElement;
+    if (parent) canvas.height = parent.offsetHeight;
 
     widthCanvas = canvas.width;
     heightCanvas = canvas.height;
 
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, widthCanvas, heightCanvas);
-
-    // const endDate = new Date();
-    // let startDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate()-30)
-    //
-    // if (startDate < minT) startDate = minT
-
-    // const filteredLogs = weightLogs.filter(item => {
-    //     const itemDate = new Date(item.date);
-    //     return itemDate >= startDate && itemDate <= endDate;
-    // });
 
     // Оптимальный поиск min/max веса без риска переполнения стека
     let minW = Infinity;
@@ -106,20 +119,12 @@ function renderUserData(data) {
         maxW = 200;
     }
 
-
-    // const scaleH = (heightCanvas-canvasOptions.paddingV) / (maxW - minW);
-
-    // let dayCount = (endDate - startDate) / (1000 * 60 * 60 * 24);
-
-    // if (dayCount > filteredLogs.length) dayCount = filteredLogs.length;
-
     const step = (widthCanvas-canvasOptions.paddingH) / totalDayCount;
 
     const dispD = {
         step,
         minWeight: minW,
         maxWeight: maxW,
-
         scaleH:scale.horiz,
     }
 
@@ -128,31 +133,16 @@ function renderUserData(data) {
         startDate:minT,
         endDate:toDay,
         dispD,
-
     })
 
     ctx.lineCap = 'round';    // закругленные края
 
-
-    let mm = []
-    weightLogs.forEach((log,i)=> {
+    let mm: number[] = []
+    weightLogs.forEach((log)=> {
         mm.push(log.weight)
     });
 
-    let mV1 = []
-    // const col = "#bc07b9"
-    // for (let i = 0; i < 6; i++) {
-    //     mV1 = loess(mm,0.1+i*0.1)
-    //
-    //     drawLine({
-    //         mas:mV1,
-    //         strokeStyle:col+(i+1)*10
-    //         ,lineWidth:1
-    //         ,step,
-    //         minValue:min,
-    //         scaleH
-    //     })
-    // }
+    let mV1: number[] = []
 
     mV1 = loess(mm,0.15)
     const lWidth = 3
@@ -195,19 +185,31 @@ function renderUserData(data) {
 
 }
 
+interface DispD {
+    step: number;
+    minWeight: number;
+    maxWeight: number;
+    scaleH: number;
+}
+
 function drawDayLine({
                          data,
                          startDate,
                          endDate,
     dispD,
-                     }) {
+                     }: {
+    data: any[];
+    startDate: Date;
+    endDate: Date;
+    dispD: DispD;
+}) {
 
     const step = dispD.step;
     const minWeight = dispD.minWeight;
     const maxWeight = dispD.maxWeight;
     const scaleH = dispD.scaleH;
 
-    const dayCount = (endDate - startDate) / (1000 * 60 * 60 * 24);
+    const dayCount = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
 
     ctx.beginPath();
     ctx.strokeStyle = '#00005005';
@@ -299,7 +301,12 @@ function drawInfo({
                       mas,
                       step,
                       minValue=0,
-                      scaleH=1}) {
+                      scaleH=1}: {
+    mas: number[];
+    step: number;
+    minValue?: number;
+    scaleH?: number;
+}) {
 
 
 
@@ -312,8 +319,8 @@ function drawInfo({
 
         const x = i*step + canvasOptions.padding.left
 
-        let y
-        if (v === '') {
+        let y: number = 0;
+        if ((v as any) === '') {
 
         } else {
             y = heightCanvas - (v-minValue)*scaleH;
@@ -359,7 +366,14 @@ function drawLine({
                       lineWidth,
                       step,
                   minValue=0,
-                  scaleH=1}) {
+                  scaleH=1}: {
+    mas: number[];
+    strokeStyle: string;
+    lineWidth: number;
+    step: number;
+    minValue?: number;
+    scaleH?: number;
+}) {
     ctx.beginPath();
 
     ctx.strokeStyle = strokeStyle
@@ -369,8 +383,8 @@ function drawLine({
 
         const x = i*step + canvasOptions.padding.left
 
-        let y
-        if (v === '') {
+        let y: number = 0;
+        if ((v as any) === '') {
 
         } else {
             y = heightCanvas - (v-minValue)*scaleH - canvasOptions.padding.bottom;
@@ -384,7 +398,7 @@ function drawLine({
     });
     ctx.stroke();
 }
-function loess(y, span = 0.3) {
+function loess(y: number[], span: number = 0.3): number[] {
     const n = y.length;
     if (n === 0) return [];
 

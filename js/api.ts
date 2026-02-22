@@ -1,11 +1,11 @@
 import 'dotenv/config';
+import { Request, Response } from 'express';
+import { connectDB } from './db.js';
 
-import { connectDB } from './db.mjs';
-
-import bot, { doReminder } from './bot.mjs';
+import bot, { doReminder } from './bot.js';
 
 // Обработчик вебхука для Express / Vercel
-export default async function handler(req, res) {
+export default async function handler(req: Request, res: Response) {
     // console.log('Webhook received:', JSON.stringify(req.body, null, 2));
     try {
         await connectDB();
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
             return;
         }
 
-        await bot.handleUpdate(req.body, res);
+        await (bot as any).handleUpdate(req.body, res);
         if (!res.writableEnded) {
             res.sendStatus(200);
         }

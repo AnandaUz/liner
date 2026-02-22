@@ -10,12 +10,12 @@ const MONGO_URI =
     `@cluster0.vqcukp6.mongodb.net/${MONGODB_DB}?retryWrites=true&w=majority`;
 
 
-const globalCache = globalThis.__mongooseCache || (globalThis.__mongooseCache = {
+const globalCache = (globalThis as any).__mongooseCache || ((globalThis as any).__mongooseCache = {
     conn: null,
     promise: null
 });
 
-export async function connectDB() {
+export async function connectDB(): Promise<typeof mongoose> {
     if (globalCache.conn) {
         return globalCache.conn;
     }

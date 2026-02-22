@@ -2,8 +2,12 @@
   "name": "liner_app",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "type": "module",
   "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node-esm index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "private": true,
@@ -21,5 +25,20 @@
     "passport-google-oauth20": "^2.0.0",
     "sharp": "^0.34.5",
     "telegraf": "^4.16.3"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.6",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/dotenv": "^6.1.1",
+    "@types/ejs": "^3.1.5",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^25.3.0",
+    "@types/passport": "^1.0.17",
+    "@types/passport-google-oauth20": "^2.0.17",
+    "@types/sharp": "^0.31.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }

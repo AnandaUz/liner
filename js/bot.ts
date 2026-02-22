@@ -1,15 +1,15 @@
-import { Telegraf } from 'telegraf';
+import { Telegraf, Context } from 'telegraf';
 import sharp from 'sharp';
-import { User } from './models/users.mjs';
-import { WeightLog } from './models/weightLog.mjs';
+import { User, IUser } from './models/users.js';
+import { WeightLog } from './models/weightLog.js';
 
-const bot = new Telegraf(process.env.LINER_BOT_TOKEN);
-const userState = new Map();
+const bot = new Telegraf(process.env.LINER_BOT_TOKEN!);
+const userState = new Map<number, { step: string, data: any }>();
 
 /* /start */
 bot.start(async (ctx) => {
     const telegramId = ctx.from.id;
-    const payload = ctx.payload; // USER_ID из ссылки t.me/bot?start=USER_ID
+    const payload = (ctx as any).payload; // USER_ID из ссылки t.me/bot?start=USER_ID
 
     let user = await User.findOne({ telegramId });
 
@@ -57,9 +57,11 @@ bot.start(async (ctx) => {
     await ctx.reply('Как тебя зовут?');
 });
 
-async function addWeight(ctx, user = ctx.from) {
-    const t0 = Date.now();
-    const text = ctx.message.text.trim();
+async function addWeight(ctx: Context, user: IUser) {
+    const message = ctx.message as any;
+    if (!message || !message.text) return;
+
+    const text = message.text.trim();
     //12.06.26 66.5 какой-то комментарий
     /* 1. Регулярка:
        - опциональная дата: DD.MM.YY
@@ -76,7 +78,7 @@ async function addWeight(ctx, user = ctx.from) {
     }
 
     /* 2. Дата */
-    let date;
+    let date: Date;
     if (match[1]) {
         const [day, month, year] = match[1].split('.');
         date = new Date(`20${year}-${month}-${day}`);
@@ -115,7 +117,6 @@ async function addWeight(ctx, user = ctx.from) {
     const dayEnd = new Date(date);
     dayEnd.setHours(23, 59, 59, 999);
 
-    const tDbStart = Date.now();
     await WeightLog.findOneAndUpdate(
         {
             userId: user._id,
@@ -135,49 +136,31 @@ async function addWeight(ctx, user = ctx.from) {
     const dNow = new Date();
     dNow.setHours(12, 0, 0, 0);
 
-    let predDate = null
+    let predDate: Date | null = null
     let diff = 0
     if (user.last_data) {
-        predDate = new Date(user.last_data.date);
+        predDate = user.last_data.date ? new Date(user.last_data.date) : null;
         if (user.last_data.weight) {
             diff = weight - user.last_data.weight;
-            // const sign = diff > 0 ? '+' : '';
-            // diffText = ` (${sign}${diff.toFixed(2)})`;
-
-            if (user.last_data.mess_id) {
-                try {
-                    // await ctx.telegram.deleteMessage(ctx.chat.id, user.last_data.mess_id);
-                } catch (err) {
-                    console.error('Error deleting old message:', err);
-                }
-            }
         }
     }
     if (predDate && dNow.getTime() === predDate.getTime()) {
-        const w = user.last_data.weight - weight
+        const w = (user.last_data?.weight || 0) - weight
 
         diff = weight - w;
         const sign = diff > 0 ? '+' : '';
         diffText = ` (${sign}${diff.toFixed(2)} кг)`;
-    } else {
-
     }
 
-
-
-
     // Сохраняем данные в user
-    const tUserUpdateStart = Date.now();
     await User.findByIdAndUpdate(user._id, {
         last_data: {
             weight,
             date: dNow,
             mess_id: sentMsg.message_id,
-            weight_delta:diff,
+            weight_delta: diff,
         }
     });
-
-    // sendSvgAsPng(ctx)
 }
 export async function doReminder() {
     console.log('Starting doReminder task...');
@@ -200,8 +183,10 @@ export async function doReminder() {
 
         for (const user of usersToRemind) {
             try {
-                await bot.telegram.sendMessage(user.telegramId, 'Прошу ввести ваши данные');
-                console.log(`Reminder sent to ${user.name} (${user.telegramId})`);
+                if (user.telegramId) {
+                    await bot.telegram.sendMessage(user.telegramId, 'Прошу ввести ваши данные');
+                    console.log(`Reminder sent to ${user.name} (${user.telegramId})`);
+                }
             } catch (err) {
                 console.error(`Error sending reminder to ${user.name} (${user.telegramId}):`, err);
             }
@@ -211,7 +196,7 @@ export async function doReminder() {
         console.error('Error in doReminder:', err);
     }
 }
-async function sendSvgAsPng(ctx) {
+async function sendSvgAsPng(ctx: Context) {
     // 1. SVG
     const svg = `
   <svg width="500" height="500" viewBox="0 0 500 500"
@@ -246,7 +231,8 @@ async function sendSvgAsPng(ctx) {
 /* Текстовые сообщения */
 bot.on('text', async (ctx) => {
     const telegramId = ctx.from.id;
-    const text = ctx.message.text;
+    const message = ctx.message as any;
+    const text = message.text;
 
     const state = userState.get(telegramId);
 
@@ -289,9 +275,7 @@ bot.on('text', async (ctx) => {
     const user = await User.findOne({ telegramId });
     if (!user) return;
 
-
-
-    addWeight(ctx,user)
+    addWeight(ctx, user)
 });
 
 
