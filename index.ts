@@ -47,7 +47,11 @@ const __dirname = path.dirname(__filename);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-app.use(express.static("public"));
+const staticDir = process.env.NODE_ENV === "production" ? path.join(__dirname, "public") : "public";
+app.use(express.static(staticDir));
+if (process.env.NODE_ENV !== "production") {
+    app.use("/js", express.static(path.join(__dirname, "dist", "public", "js")));
+}
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
