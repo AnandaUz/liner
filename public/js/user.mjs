@@ -35,6 +35,10 @@ const canvasOptions = {
         return this.padding.left + this.padding.right
     }
 }
+let scale = {
+    vert:20,
+    horiz:30,// пикселей на день
+}
 
 function renderUserData(data) {
     const { user, weightLogs } = data;
@@ -47,18 +51,29 @@ function renderUserData(data) {
     //     const date = new Date(user.targetDate);
     //     document.getElementById('target-date').textContent = date.toLocaleDateString('ru-RU');
     // }
+
+    if (weightLogs.length === 0) return;
     
     //canvas
     const canvas = document.getElementById('weight-chart');
 
     ctx = canvas.getContext('2d');
 
+
+    // Оптимальный поиск min/max дат (так как weightLogs уже отсортированы API)
+    const toDay = new Date();
+    const minT = new Date(weightLogs[0].date)
+    const maxT = new Date(weightLogs[weightLogs.length - 1].date)
+
+    const totalDayCount = (toDay - minT) / (1000 * 60 * 60 * 24);
+
+
     ctx.beginPath();
     ctx.strokeStyle = 'blue'; // цвет линии
     ctx.lineWidth = 1;        // толщина в пикселях
     ctx.lineCap = 'round';    // закругленные края
 
-    canvas.width = canvas.parentElement.clientWidth;
+    canvas.width = totalDayCount*scale.horiz//canvas.parentElement.clientWidth;
     canvas.height = canvas.parentElement.offsetHeight;
 
     widthCanvas = canvas.width;
@@ -67,29 +82,21 @@ function renderUserData(data) {
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, widthCanvas, heightCanvas);
 
+    // const endDate = new Date();
+    // let startDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate()-30)
+    //
+    // if (startDate < minT) startDate = minT
 
-
-    if (weightLogs.length === 0) return;
-
-    // Оптимальный поиск min/max дат (так как weightLogs уже отсортированы API)
-    const minT = new Date(weightLogs[0].date)
-    const maxT = new Date(weightLogs[weightLogs.length - 1].date)
-
-    const endDate = new Date();
-    let startDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate()-30)
-
-    if (startDate < minT) startDate = minT
-
-    const filteredLogs = weightLogs.filter(item => {
-        const itemDate = new Date(item.date);
-        return itemDate >= startDate && itemDate <= endDate;
-    });
+    // const filteredLogs = weightLogs.filter(item => {
+    //     const itemDate = new Date(item.date);
+    //     return itemDate >= startDate && itemDate <= endDate;
+    // });
 
     // Оптимальный поиск min/max веса без риска переполнения стека
     let minW = Infinity;
     let maxW = -Infinity;
     
-    filteredLogs.forEach(log => {
+    weightLogs.forEach(log => {
         if (log.weight < minW) minW = log.weight;
         if (log.weight > maxW) maxW = log.weight;
     });
@@ -100,26 +107,26 @@ function renderUserData(data) {
     }
 
 
-    const scaleY = (heightCanvas-canvasOptions.paddingV) / (maxW - minW);
+    // const scaleH = (heightCanvas-canvasOptions.paddingV) / (maxW - minW);
 
-    let dayCount = (endDate - startDate) / (1000 * 60 * 60 * 24);
+    // let dayCount = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
     // if (dayCount > filteredLogs.length) dayCount = filteredLogs.length;
 
-    const step = (widthCanvas-canvasOptions.paddingH) / dayCount;
+    const step = (widthCanvas-canvasOptions.paddingH) / totalDayCount;
 
     const dispD = {
         step,
         minWeight: minW,
         maxWeight: maxW,
 
-        scaleY
+        scaleH:scale.horiz,
     }
 
     drawDayLine({
         data:weightLogs,
-        startDate,
-        endDate,
+        startDate:minT,
+        endDate:toDay,
         dispD,
 
     })
@@ -128,7 +135,7 @@ function renderUserData(data) {
 
 
     let mm = []
-    filteredLogs.forEach((log,i)=> {
+    weightLogs.forEach((log,i)=> {
         mm.push(log.weight)
     });
 
@@ -143,7 +150,7 @@ function renderUserData(data) {
     //         ,lineWidth:1
     //         ,step,
     //         minValue:min,
-    //         scaleY
+    //         scaleH
     //     })
     // }
 
@@ -156,7 +163,7 @@ function renderUserData(data) {
         ,lineWidth:lWidth
         ,step,
         minValue:minW,
-        scaleY
+        scaleH:scale.horiz,
     })
     mV1 = loess(mm,0.5)
 
@@ -166,7 +173,7 @@ function renderUserData(data) {
         ,lineWidth:lWidth
         ,step,
         minValue:minW,
-        scaleY
+        scaleH:scale.horiz,
     })
 
     //линия веса
@@ -176,13 +183,13 @@ function renderUserData(data) {
         ,lineWidth:1
         ,step,
         minValue:minW,
-        scaleY
+        scaleH:scale.horiz,
     })
     drawInfo({
             mas: mm,
             step,
             minValue: minW,
-            scaleY
+            scaleH:scale.horiz,
         }
     )
 
@@ -198,7 +205,7 @@ function drawDayLine({
     const step = dispD.step;
     const minWeight = dispD.minWeight;
     const maxWeight = dispD.maxWeight;
-    const scaleY = dispD.scaleY;
+    const scaleH = dispD.scaleH;
 
     const dayCount = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
@@ -262,7 +269,7 @@ function drawDayLine({
 
         const x = canvasOptions.padding.left
         const x2 = x + (widthCanvas-canvasOptions.paddingH)
-        const y = (heightCanvas - (i - sW + dH)*scaleY)-canvasOptions.padding.bottom;
+        const y = (heightCanvas - (i - sW + dH)*scaleH)-canvasOptions.padding.bottom;
 
 
         const ii = Math.round(i*100)/100
@@ -292,7 +299,7 @@ function drawInfo({
                       mas,
                       step,
                       minValue=0,
-                      scaleY=1}) {
+                      scaleH=1}) {
 
 
 
@@ -309,7 +316,7 @@ function drawInfo({
         if (v === '') {
 
         } else {
-            y = heightCanvas - (v-minValue)*scaleY;
+            y = heightCanvas - (v-minValue)*scaleH;
         }
 
 
@@ -343,7 +350,7 @@ function drawInfo({
  * @param lineWidth
  * @param step
  * @param minValue
- * @param scaleY
+ * @param scaleH
  */
 
 function drawLine({
@@ -352,7 +359,7 @@ function drawLine({
                       lineWidth,
                       step,
                   minValue=0,
-                  scaleY=1}) {
+                  scaleH=1}) {
     ctx.beginPath();
 
     ctx.strokeStyle = strokeStyle
@@ -366,7 +373,7 @@ function drawLine({
         if (v === '') {
 
         } else {
-            y = heightCanvas - (v-minValue)*scaleY - canvasOptions.padding.bottom;
+            y = heightCanvas - (v-minValue)*scaleH - canvasOptions.padding.bottom;
         }
 
         if (i === 0) {
