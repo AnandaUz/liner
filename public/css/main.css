@@ -7414,7 +7414,7 @@ header, main, footer {
 }
 @media (min-width: 576px) {
   header, main, footer {
-    max-width: 800px;
+    max-width: 1000px;
   }
 }
 
@@ -7490,6 +7490,15 @@ h1:before {
 .canvasBl {
   height: 500px;
   margin: 10px;
+  overflow: hidden;
+  position: relative;
+}
+.canvasBl .canvas {
+  display: block;
+  position: absolute;
+}
+.canvasBl .canvas.canvas0 {
+  z-index: 10;
 }
 
 .user-info {

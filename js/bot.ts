@@ -84,6 +84,7 @@ async function addWeight(ctx: Context, user: IUser) {
         date = new Date(`20${year}-${month}-${day}`);
     } else {
         date = new Date(); // сегодня
+        date.setHours(12,0,0,0)
     }
 
     /* 3. Вес */
