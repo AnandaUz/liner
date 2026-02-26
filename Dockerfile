@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Установка всех зависимостей (включая devDependencies) для сборки
 COPY package*.json ./
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 # Копирование исходного кода проекта
 COPY . .
@@ -26,7 +26,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/views ./views
 
 # Установка только production зависимостей
-RUN npm install --omit=dev --legacy-peer-deps
+RUN npm ci --omit=dev --legacy-peer-deps
 
 # Переменные окружения
 ENV NODE_ENV production
