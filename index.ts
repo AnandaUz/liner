@@ -2,7 +2,7 @@ import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
 import path from "path";
 
-import { fileURLToPath } from "url";
+// import { fileURLToPath } from "url";
 
 import api from "./js/api.js";
 import cookieParser from "cookie-parser";
@@ -41,19 +41,19 @@ app.locals.formatDate = function (dateStr: string) {
 };
 
 // нужно, чтобы корректно получить __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 // const articlesPath = path.join(__dirname, "views", "partials", "articles", "articles.json");
 // let articles = [];
 
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
+app.set("views", path.join(process.cwd(), "views"));
 
-const staticDir = process.env.NODE_ENV === "production" ? path.join(__dirname, "public") : "public";
+const staticDir = path.join(process.cwd(), "public");
 app.use(express.static(staticDir));
 if (process.env.NODE_ENV !== "production") {
-    app.use("/js", express.static(path.join(__dirname, "dist", "public", "js")));
+    app.use("/js", express.static(path.join(process.cwd(), "dist", "public", "js")));
 }
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
