@@ -274,14 +274,8 @@ app.get("/api/user-data/:id", async (req: Request, res: Response) => {
     }
 });
 
-app.post("/api", (req, res, next) => {
-    console.log("[TEMP_LOG] Incoming request to /api");
-    next();
-}, api as any);
-app.all("/api/reminder", (req, res, next) => {
-    console.log("[TEMP_LOG] Incoming request to /api/reminder");
-    next();
-}, api as any);
+app.post("/api", api as any);
+app.all("/api/reminder", api as any);
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);

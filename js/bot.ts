@@ -58,15 +58,12 @@ bot.start(async (ctx) => {
 });
 
 async function addWeight(ctx: Context, user: IUser) {
-    console.log(`[TEMP_LOG] addWeight started for user: ${user.name}`);
     const message = ctx.message as any;
     if (!message || !message.text) {
-        console.log('[TEMP_LOG] addWeight: No message text found');
         return;
     }
 
     const text = message.text.trim();
-    console.log(`[TEMP_LOG] Processing text: "${text}"`);
     //12.06.26 66.5 какой-то комментарий
     /* 1. Регулярка:
        - опциональная дата: DD.MM.YY
@@ -79,7 +76,6 @@ async function addWeight(ctx: Context, user: IUser) {
 
     const match = text.match(regex);
     if (!match) {
-        console.log('[TEMP_LOG] Regex match failed for text');
         await ctx.reply('Неверный формат. Пример: [12.06.26] 66.5 [комментарий]');
         return;
     }
@@ -93,16 +89,13 @@ async function addWeight(ctx: Context, user: IUser) {
         date = new Date(); // сегодня
         date.setHours(12,0,0,0)
     }
-    console.log(`[TEMP_LOG] Parsed date: ${date.toISOString()}`);
 
     /* 3. Вес */
     const weight = Number(match[2].replace(',', '.'));
     if (Number.isNaN(weight)) {
-        console.log(`[TEMP_LOG] Weight parsing failed for: ${match[2]}`);
         await ctx.reply('Не удалось распознать вес');
         return;
     }
-    console.log(`[TEMP_LOG] Parsed weight: ${weight}`);
 
     /* 4. Комментарий */
     const comment = match[3]?.trim() || '';
@@ -113,9 +106,7 @@ async function addWeight(ctx: Context, user: IUser) {
     // const str = `Вес сохранён: ${weight} кг${diffText}`
 
     //отправляем сообщение в ТГ
-    console.log('[TEMP_LOG] Sending reply to user...');
     const sentMsg = await ctx.reply(`Вес сохранён: ${weight} кг${diffText}\n<a href="${userUrl}">ваша страница</a>`, { parse_mode: 'HTML' })
-    console.log('[TEMP_LOG] Reply sent, message_id:', sentMsg.message_id);
     // Отправка уведомления админу
     const adminId = process.env.LINER_BOT_ADMIN;
     if (adminId) {
@@ -246,10 +237,8 @@ bot.on('text', async (ctx) => {
     const telegramId = ctx.from.id;
     const message = ctx.message as any;
     const text = message.text;
-    console.log(`[TEMP_LOG] Bot received text from ${telegramId}: ${text}`);
 
     const state = userState.get(telegramId);
-    console.log(`[TEMP_LOG] User state for ${telegramId}:`, state ? state.step : 'none');
 
     /* ЭТАП РЕГИСТРАЦИИ */
     if (state) {
@@ -288,13 +277,10 @@ bot.on('text', async (ctx) => {
 
     /* ПОСЛЕ РЕГИСТРАЦИИ — ПРИЁМ ВЕСА */
     const user = await User.findOne({ telegramId });
-    console.log(`[TEMP_LOG] User in DB for ${telegramId}:`, user ? user.name : 'not found');
     if (!user) {
-        console.log(`[TEMP_LOG] User ${telegramId} not found, ignoring message`);
         return;
     }
 
-    console.log(`[TEMP_LOG] Calling addWeight for user ${user.name}`);
     addWeight(ctx, user)
 });
 
