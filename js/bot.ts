@@ -1,5 +1,5 @@
 import { Telegraf, Context } from 'telegraf';
-import sharp from 'sharp';
+// import sharp from 'sharp';
 import { User, IUser } from './models/users.js';
 import { WeightLog } from './models/weightLog.js';
 
@@ -98,7 +98,7 @@ async function addWeight(ctx: Context, user: IUser) {
     /* 4. Комментарий */
     const comment = match[3]?.trim() || '';
 
-    const userUrl = `https://linerapp.vercel.app/user/${user._id}`;
+    const userUrl = process.env.BASE_URL + `/user/${user._id}`;
 
     let diffText = ''
     // const str = `Вес сохранён: ${weight} кг${diffText}`
@@ -150,8 +150,8 @@ async function addWeight(ctx: Context, user: IUser) {
         const w = (user.last_data?.weight || 0) - weight
 
         diff = weight - w;
-        const sign = diff > 0 ? '+' : '';
-        diffText = ` (${sign}${diff.toFixed(2)} кг)`;
+        // const sign = diff > 0 ? '+' : '';
+        // diffText = ` (${sign}${diff.toFixed(2)} кг)`;
     }
 
     // Сохраняем данные в user
@@ -198,37 +198,37 @@ export async function doReminder() {
         console.error('Error in doReminder:', err);
     }
 }
-async function sendSvgAsPng(ctx: Context) {
-    // 1. SVG
-    const svg = `
-  <svg width="500" height="500" viewBox="0 0 500 500"
-       xmlns="http://www.w3.org/2000/svg">
-    
-    <!-- белый фон -->
-    <rect x="0" y="0" width="500" height="500" fill="white" />
-
-    <!-- красный круг по центру -->
-    <circle cx="250" cy="250" r="100" fill="red" />
-
-  </svg>
-  `;
-
-    try {
-        // 2. SVG → PNG
-        const pngBuffer = await sharp(Buffer.from(svg))
-            .png()
-            .toBuffer();
-
-        // 3. Отправка в Telegram пользователю
-        await ctx.replyWithPhoto(
-            { source: pngBuffer },
-            { caption: 'График веса (пример)' }
-        );
-    } catch (err) {
-        console.error('Error in sendSvgAsPng:', err);
-        await ctx.reply('Ошибка при генерации изображения');
-    }
-}
+// async function sendSvgAsPng(ctx: Context) {
+//     // 1. SVG
+//     const svg = `
+//   <svg width="500" height="500" viewBox="0 0 500 500"
+//        xmlns="http://www.w3.org/2000/svg">
+//
+//     <!-- белый фон -->
+//     <rect x="0" y="0" width="500" height="500" fill="white" />
+//
+//     <!-- красный круг по центру -->
+//     <circle cx="250" cy="250" r="100" fill="red" />
+//
+//   </svg>
+//   `;
+//
+//     try {
+//         // 2. SVG → PNG
+//         const pngBuffer = await sharp(Buffer.from(svg))
+//             .png()
+//             .toBuffer();
+//
+//         // 3. Отправка в Telegram пользователю
+//         await ctx.replyWithPhoto(
+//             { source: pngBuffer },
+//             { caption: 'График веса (пример)' }
+//         );
+//     } catch (err) {
+//         console.error('Error in sendSvgAsPng:', err);
+//         await ctx.reply('Ошибка при генерации изображения');
+//     }
+// }
 
 /* Текстовые сообщения */
 bot.on('text', async (ctx) => {
