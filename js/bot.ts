@@ -98,7 +98,7 @@ async function addWeight(ctx: Context, user: IUser) {
     /* 4. Комментарий */
     const comment = match[3]?.trim() || '';
 
-    const userUrl = process.env.BASE_URL + `/user/${user._id}`;
+    const userUrl = (process.env.BASE_URL||'https://liner.esho.uz') + `/user/${user._id}`;
 
     let diffText = ''
     // const str = `Вес сохранён: ${weight} кг${diffText}`
