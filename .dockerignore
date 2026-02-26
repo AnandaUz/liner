@@ -5,6 +5,5 @@ dist
 Dockerfile
 Jenkinsfile
 README.md
-tsconfig.json
 js_tools
 .data
