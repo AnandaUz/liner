@@ -68,6 +68,7 @@ async function addWeight(ctx: Context, user: IUser) {
        - обязательный вес: 66.5 или 66,5
        - опциональный комментарий
     */
+
     const regex =
         /^(?:(\d{2}\.\d{2}\.\d{2})\s+)?(\d+(?:[.,]\d+)?)\s*(.*)?$/;
 
