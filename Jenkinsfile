@@ -77,9 +77,9 @@ pipeline {
                             sh """
                             docker run -d \
                                 --restart always \
-                                -p 2000:2000 \
+                                -p 8080:8080 \
                                 --name ${IMAGE_NAME} \
-                                -e PORT=2000 \
+                                -e PORT=8080 \
                                 -e APP_KEY='${params.APP_KEY}' \
                                 -e LINER_BOT_TOKEN='${params.LINER_BOT_TOKEN}' \
                                 -e LINER_BOT_USERNAME='${params.LINER_BOT_USERNAME}' \

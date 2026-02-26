@@ -30,7 +30,7 @@ declare global {
 connectDB();
 
 const app = express();
-const port = process.env.PORT || 2000;
+const port = process.env.PORT || 8080;
 
 app.locals.formatDate = function (dateStr: string) {
     const [y, m, d] = dateStr.split('-');

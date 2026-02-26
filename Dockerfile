@@ -1,22 +1,40 @@
-# ---- Stage 1: Runtime ----
-FROM node:20-alpine
+# ---- Stage 1: Build ----
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Установка зависимостей
+# Установка всех зависимостей (включая devDependencies) для сборки
 COPY package*.json ./
-RUN npm install --omit=dev --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
 # Копирование исходного кода проекта
 COPY . .
 
-# Переменные окружения (будут перекрыты файлом .env или настройками в Jenkins/Docker)
+# Сборка проекта (компиляция TypeScript)
+RUN npm run build
+
+# ---- Stage 2: Runtime ----
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Копируем только необходимые файлы из этапа сборки
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/dist ./dist
+# Если есть статические файлы в public или views, их тоже нужно скопировать
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/views ./views
+
+# Установка только production зависимостей
+RUN npm install --omit=dev --legacy-peer-deps
+
+# Переменные окружения
 ENV NODE_ENV production
-ENV PORT 2000
+ENV PORT 8080
 
-EXPOSE 2000
+EXPOSE 8080
 
-# Запуск вашего основного файла index.mjs
-CMD [ "node", "index.mjs" ]
+# Запуск скомпилированного кода
+CMD [ "node", "dist/index.js" ]
 
 
