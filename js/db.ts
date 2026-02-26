@@ -1,13 +1,21 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 
-dotenv.config({ path: new URL('../.env', import.meta.url) });
+// Only load dotenv for local development (when not in production/Cloud Run)
+if (process.env.NODE_ENV !== 'production') {
+    try {
+        const { config } = await import('dotenv');
+        config({ path: new URL('../.env', import.meta.url) });
+    } catch (e) {
+        console.warn('dotenv not found or .env file missing, relying on system environment variables');
+    }
+}
 
-const { MONGODB_USER, MONGODB_PASSWORD, MONGODB_DB } = process.env;
+const { MONGODB_USER, MONGODB_PASSWORD, MONGODB_DB, MONGODB_URI } = process.env;
 
-const MONGO_URI =
-    `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}` +
-    `@cluster0.vqcukp6.mongodb.net/${MONGODB_DB}?retryWrites=true&w=majority`;
+// Priority: MONGODB_URI (if provided as a full string), else construct it from individual components
+const MONGO_URI = MONGODB_URI || 
+    (`mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}` +
+    `@cluster0.vqcukp6.mongodb.net/${MONGODB_DB}?retryWrites=true&w=majority`);
 
 
 const globalCache = (globalThis as any).__mongooseCache || ((globalThis as any).__mongooseCache = {

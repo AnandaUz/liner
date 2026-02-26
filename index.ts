@@ -27,7 +27,10 @@ declare global {
     }
 }
 
-connectDB();
+connectDB().catch(err => {
+    console.error("Critical error during initial DB connection:", err);
+    // Continue starting the app, so it can at least listen on port 8080 and report status
+});
 
 const app = express();
 const port = process.env.PORT || 8080;
