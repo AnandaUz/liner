@@ -6,6 +6,5 @@ Dockerfile
 Jenkinsfile
 README.md
 tsconfig.json
-package-lock.json
 js_tools
 .data
