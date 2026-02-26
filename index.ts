@@ -52,9 +52,8 @@ app.set("views", path.join(process.cwd(), "views"));
 
 const staticDir = path.join(process.cwd(), "public");
 app.use(express.static(staticDir));
-if (process.env.NODE_ENV !== "production") {
-    app.use("/js", express.static(path.join(process.cwd(), "dist", "public", "js")));
-}
+// В продакшене и в разработке JS-файлы берем из dist/public/js, так как они скомпилированы из TS
+app.use("/js", express.static(path.join(process.cwd(), "dist", "public", "js")));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
