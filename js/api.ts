@@ -12,7 +12,7 @@ export default async function handler(req: Request, res: Response) {
 
         // Проверяем, не является ли это командой для напоминания (например, через Cron Job)
         // URL вида: /api/reminder или /api/webhook?task=reminder
-        if ((req.query && req.query.task === 'reminder') || req.path === '/reminder' || req.path === '/api/reminder') {
+        if ((req.query && req.query.task === 'reminder') || req.path === '/reminder' || req.originalUrl === '/api/reminder') {
             await doReminder();
             res.status(200).send('Reminder sent');
             return;
