@@ -25,13 +25,6 @@ declare global {
     }
 }
 
-    try {
-        await connectDB();
-    } catch (err) {
-        console.error("Critical error during initial DB connection:", err);
-        // Continue starting the app, so it can at least listen on port 8080 and report status
-    }
-
 const app = express();
 const port = process.env.PORT || 8080;
 
@@ -49,7 +42,19 @@ async function startServer() {
         app.use(vite.middlewares);
     }
 
-    const manifest = isProd ? JSON.parse(fs.readFileSync(path.join(process.cwd(), "dist/public/.vite/manifest.json"), "utf-8")) : {};
+    let manifest: Record<string, any> = {};
+    if (isProd) {
+        const manifestPath = path.join(process.cwd(), "dist/public/.vite/manifest.json");
+        try {
+            if (fs.existsSync(manifestPath)) {
+                manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+            } else {
+                console.error("Vite manifest not found at:", manifestPath);
+            }
+        } catch (err) {
+            console.error("Error loading Vite manifest:", err);
+        }
+    }
 
     function getAssets(entry: string) {
         if (!isProd) {
@@ -58,6 +63,10 @@ async function startServer() {
         }
         const manifestKey = entry === "desk" ? `src/client/desk.ts` : `src/client/js/${entry}.ts`;
         const entryData = manifest[manifestKey];
+        if (!entryData) {
+            console.warn(`No manifest entry found for: ${manifestKey}`);
+            return { script: "", stylesheets: [] };
+        }
         const script = `/${entryData.file}`;
         const stylesheets = entryData.css ? entryData.css.map((css: string) => `/${css}`) : [];
         return { script, stylesheets };
@@ -315,6 +324,13 @@ async function startServer() {
     app.listen(port, () => {
         console.log(`Server running on http://localhost:${port} in ${isProd ? "production" : "development"} mode`);
     });
+
+    // Connect to DB AFTER starting the server to avoid Cloud Run timeout
+    try {
+        await connectDB();
+    } catch (err) {
+        console.error("Critical error during initial DB connection:", err);
+    }
 }
 
 startServer().catch(err => {
