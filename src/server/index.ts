@@ -25,10 +25,12 @@ declare global {
     }
 }
 
-connectDB().catch(err => {
-    console.error("Critical error during initial DB connection:", err);
-    // Continue starting the app, so it can at least listen on port 8080 and report status
-});
+    try {
+        await connectDB();
+    } catch (err) {
+        console.error("Critical error during initial DB connection:", err);
+        // Continue starting the app, so it can at least listen on port 8080 and report status
+    }
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -311,9 +313,12 @@ async function startServer() {
     app.all("/api/reminder", api as any);
 
     app.listen(port, () => {
-        console.log(`Server running on http://localhost:${port}`);
+        console.log(`Server running on http://localhost:${port} in ${isProd ? "production" : "development"} mode`);
     });
 }
 
-startServer();
+startServer().catch(err => {
+    console.error("Failed to start server:", err);
+    process.exit(1);
+});
 

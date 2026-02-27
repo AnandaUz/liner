@@ -7,10 +7,10 @@ const IS_DEV = process.env.IS_DEV === 'true' || process.env.NODE_ENV !== 'produc
 const BOT_TOKEN = IS_DEV ? process.env.LINER_BOT_TOKEN_DEV : process.env.LINER_BOT_TOKEN;
 
 if (!BOT_TOKEN) {
-    console.warn(`Warning: BOT_TOKEN is not defined for ${IS_DEV ? 'development' : 'production'} environment.`);
+    console.error(`ERROR: BOT_TOKEN is not defined for ${IS_DEV ? 'development' : 'production'} environment. Application might crash.`);
 }
 
-const bot = new Telegraf(BOT_TOKEN || '');
+const bot = new Telegraf(BOT_TOKEN || 'dummy-token-to-prevent-crash');
 const userState = new Map<number, { step: string, data: any }>();
 
 const ADMIN_ID = process.env.LINER_BOT_ADMIN ? Number(process.env.LINER_BOT_ADMIN) : null;
