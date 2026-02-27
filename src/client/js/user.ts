@@ -1,5 +1,7 @@
-import { Desk } from "./desk.js";
-import { WeightLog } from "./types.js";
+import { Desk } from "../desk";
+import { WeightLog } from "./types";
+import '../css/main.scss';
+import 'bootstrap';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const targetUserIdEl = document.getElementById('target-user-id') as HTMLInputElement;

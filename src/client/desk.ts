@@ -263,7 +263,7 @@ export class Desk {
         ctxH.textBaseline = 'middle';
 
         // const startDate = this.weightData.startDay || new Date()
-        let day = this.weightData.endDay || new Date()
+        let day = new Date()
 
 
         const padding = this.canvasOptions.padding

@@ -7398,7 +7398,7 @@ body {
   line-height: 1.2;
   color: rgba(88, 21, 0, 0.8);
   background: #fff;
-  background-image: url("../images/bg.png");
+  background-image: url("../../../public/images/bg.png");
   font-size: 18px;
   display: flex;
   flex-direction: column; /* Элементы идут друг под другом */
@@ -7432,7 +7432,7 @@ footer {
   width: 100%;
   margin: 0 auto;
   background-size: 100%;
-  background-image: url("../images/bgmain.png");
+  background-image: url("../../../public/images/bgmain.png");
   padding: 0;
 }
 
@@ -7474,7 +7474,7 @@ h1:before {
 .login a {
   background: #298bbb;
   padding: 5px 10px;
-  margin: 0 0px 0 10px;
+  margin: 0 0 0 10px;
   border-radius: 11px;
   text-decoration: none;
   color: #fff;

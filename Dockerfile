@@ -35,6 +35,6 @@ ENV PORT 8080
 EXPOSE 8080
 
 # Запуск скомпилированного кода
-CMD [ "node", "dist/index.js" ]
+CMD [ "node", "dist/server/index.js" ]
 
 
