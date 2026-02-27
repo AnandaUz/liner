@@ -1,10 +1,79 @@
-import { Telegraf, Context } from 'telegraf';
+import { Telegraf, Context, Markup } from 'telegraf';
 // import sharp from 'sharp';
 import { User, IUser } from './models/users.js';
 import { WeightLog } from './models/weightLog.js';
 
-const bot = new Telegraf(process.env.LINER_BOT_TOKEN!);
+const IS_DEV = process.env.IS_DEV === 'true' || process.env.NODE_ENV !== 'production';
+const BOT_TOKEN = IS_DEV ? process.env.LINER_BOT_TOKEN_DEV : process.env.LINER_BOT_TOKEN;
+
+if (!BOT_TOKEN) {
+    console.warn(`Warning: BOT_TOKEN is not defined for ${IS_DEV ? 'development' : 'production'} environment.`);
+}
+
+const bot = new Telegraf(BOT_TOKEN || '');
 const userState = new Map<number, { step: string, data: any }>();
+
+const ADMIN_ID = process.env.LINER_BOT_ADMIN ? Number(process.env.LINER_BOT_ADMIN) : null;
+
+/* /admin */
+bot.command('admin', async (ctx) => {
+    if (ctx.from.id !== ADMIN_ID) {
+        return;
+    }
+
+    await ctx.reply('Админ-панель:', Markup.inlineKeyboard([
+        [Markup.button.callback('Статистика', 'admin_stats')],
+        [Markup.button.callback('Управление пользователями', 'admin_users')],
+        [Markup.button.callback('Создать рассылку', 'admin_broadcast')]
+    ]));
+});
+
+bot.action('admin_broadcast', async (ctx) => {
+    if (ctx.from?.id !== ADMIN_ID) return;
+    userState.set(ctx.from.id, { step: 'ADMIN_WAIT_CONTENT', data: {} });
+    await ctx.reply('Пришлите или перешлите сообщение для рассылки:');
+    await ctx.answerCbQuery();
+});
+
+bot.action('admin_confirm_broadcast', async (ctx) => {
+    if (ctx.from?.id !== ADMIN_ID) return;
+    const state = userState.get(ctx.from.id);
+    if (!state || state.step !== 'ADMIN_CONFIRM_BROADCAST') {
+        return ctx.reply('Ошибка: состояние потеряно.');
+    }
+
+    const messageToForward = state.data.message;
+    const users = await User.find({ telegramId: { $exists: true } });
+    
+    await ctx.reply(`Начинаю рассылку на ${users.length} пользователей...`);
+    
+    let success = 0;
+    let fail = 0;
+
+    for (const user of users) {
+        if (!user.telegramId) continue;
+        try {
+            await ctx.telegram.copyMessage(user.telegramId, ADMIN_ID!, messageToForward.message_id);
+            success++;
+        } catch (err) {
+            console.error(`Failed to send to ${user.telegramId}:`, err);
+            fail++;
+        }
+        // Небольшая задержка, чтобы не поймать лимиты (хотя для 100 чел не критично)
+        await new Promise(r => setTimeout(r, 50));
+    }
+
+    await ctx.reply(`Рассылка завершена!\nУспешно: ${success}\nОшибок: ${fail}`);
+    userState.delete(ctx.from.id);
+    await ctx.answerCbQuery();
+});
+
+bot.action('admin_cancel_broadcast', async (ctx) => {
+    if (ctx.from?.id !== ADMIN_ID) return;
+    userState.delete(ctx.from.id);
+    await ctx.reply('Рассылка отменена.');
+    await ctx.answerCbQuery();
+});
 
 /* /start */
 bot.start(async (ctx) => {
@@ -233,12 +302,27 @@ export async function doReminder() {
 // }
 
 /* Текстовые сообщения */
-bot.on('text', async (ctx) => {
+bot.on('message', async (ctx) => {
     const telegramId = ctx.from.id;
     const message = ctx.message as any;
     const text = message.text;
 
     const state = userState.get(telegramId);
+
+    /* АДМИН: ОЖИДАНИЕ КОНТЕНТА РАССЫЛКИ */
+    if (telegramId === ADMIN_ID && state?.step === 'ADMIN_WAIT_CONTENT') {
+        state.step = 'ADMIN_CONFIRM_BROADCAST';
+        state.data.message = message;
+        
+        await ctx.reply('Подтвердите рассылку этого сообщения:', {
+            reply_parameters: { message_id: message.message_id },
+            ...Markup.inlineKeyboard([
+                [Markup.button.callback('✅ Подтвердить', 'admin_confirm_broadcast')],
+                [Markup.button.callback('❌ Отмена', 'admin_cancel_broadcast')]
+            ])
+        });
+        return;
+    }
 
     /* ЭТАП РЕГИСТРАЦИИ */
     if (state) {

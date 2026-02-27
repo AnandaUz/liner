@@ -17,6 +17,7 @@ export default defineConfig({
   },
   server: {
     middlewareMode: true,
+    allowedHosts: true
   },
   css: {
     devSourcemap: true,

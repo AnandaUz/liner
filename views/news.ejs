@@ -1,0 +1,79 @@
+
+
+
+
+    <%
+    function new_message(data) {
+        return `
+        <div class="new">
+            <div class="date">${data.date}</div>
+            <div class="title">${data.title}</div>
+            <div class="text">${data.text}</div>
+        </div>
+        `   
+    }
+ 
+ %>
+    <h1>Новости</h1>
+
+    <%
+        let all_news = []
+
+        all_news.push( {
+            date: '27.02.2026',
+
+            title:`Первые улучшения`,
+            // language=HTML
+            text: `
+        <p>
+<ul class="ul_level">
+    <li>
+    Каждый раз вам предлагают ссылку, перейдя по ней вы можете посмотреть свой график
+</li>
+            <li>
+                Теперь можно дополнительно взаимодействовать со своим графиком
+                <ul class="ul_level l2" >
+                    <li>
+                        Для всех платформ
+                        - можно двигать туда сюда
+                    </li>
+                    <li>
+                        Для десктоп версии
+                        - можно масштбировать
+                    </li>
+</ul>
+
+
+            </li>
+
+</p>
+        `
+        })
+    all_news.push( {
+        date: '26.02.2026',
+        // language=HTML
+        title:`Запуск проекта (в тестовом режиме)`,
+        text: `
+        <p>
+Проект официально называется <strong>Лайнер</strong> - от слово line(линия)+er(профессия кто делает это), т.е. тот, кто рисует линии.
+
+</p>
+<p>
+<strong>И на данный момент уже 4 пользователя! УРА, товащи)))!!!</strong>
+</p>
+        `
+    })
+
+
+
+    all_news.forEach(news => { %>
+        <%- new_message(news) %>
+    <% }) %>
+
+
+
+
+    
+
+
+

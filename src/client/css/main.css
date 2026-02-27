@@ -7523,4 +7523,41 @@ h1:before {
   max-width: 400px;
 }
 
+.new {
+  padding: 20px;
+  margin: 10px;
+  background: rgba(255, 255, 255, 0.8901960784);
+  border-radius: 8px;
+  border-bottom: 1px solid rgba(4, 91, 133, 0.1490196078);
+}
+.new .title {
+  font-size: 24px;
+  color: var(--darkBlue);
+}
+.new .date {
+  font-size: 14px;
+  color: #666;
+}
+.new .text {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
+.user-list a {
+  color: var(--darkBlue);
+}
+
+.ul_level {
+  list-style-type: circle;
+  padding: 0 25px;
+}
+.ul_level li {
+  margin-bottom: 5px;
+}
+.ul_level.l2 {
+  padding: 0 50px;
+  font-size: 14px;
+}
+
 /*# sourceMappingURL=main.css.map */

@@ -155,7 +155,8 @@ async function startServer() {
         )
     );
 
-    const LINER_BOT_USERNAME = process.env.LINER_BOT_USERNAME || "weight_liner_bot";
+    const IS_DEV = process.env.IS_DEV === 'true' || process.env.NODE_ENV !== 'production';
+    const LINER_BOT_USERNAME = IS_DEV ? (process.env.LINER_BOT_USERNAME_DEV) : (process.env.LINER_BOT_USERNAME);
 
     app.get("/", (req: Request, res: Response) => {
         if (req.user && !req.user.isRegistered) {
@@ -267,6 +268,14 @@ async function startServer() {
             targetUserId: req.params.id,
             botUsername: LINER_BOT_USERNAME,
             ...getAssets("user"),
+        });
+    });
+
+    app.get("/news", (req: Request, res: Response) => {
+        res.render("layout", {
+            body: "news",
+            user: req.user,
+            ...getAssets("main"),
         });
     });
 
