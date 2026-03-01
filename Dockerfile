@@ -26,6 +26,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/views ./views
 
 # Установка только production зависимостей
+# Используем --omit=dev, но убеждаемся, что все runtime зависимости в dependencies
 RUN npm ci --omit=dev --legacy-peer-deps
 
 # Переменные окружения
@@ -33,6 +34,9 @@ ENV NODE_ENV production
 ENV PORT 8080
 
 EXPOSE 8080
+
+# Добавляем проверку наличия файлов перед запуском
+RUN ls -la /app && ls -la /app/dist && ls -la /app/dist/server
 
 # Запуск скомпилированного кода
 CMD [ "node", "dist/server/index.js" ]

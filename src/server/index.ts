@@ -31,6 +31,11 @@ const port = process.env.PORT || 8080;
 import fs from "fs";
 
 async function startServer() {
+    console.log("Starting server process...");
+    console.log("NODE_ENV:", process.env.NODE_ENV);
+    console.log("PORT:", process.env.PORT);
+    console.log("Current working directory:", process.cwd());
+
     let vite: any;
     const isProd = process.env.NODE_ENV === "production";
 
