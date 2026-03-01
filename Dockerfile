@@ -29,15 +29,13 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/views ./views
 
-# Устанавливаем ТОЛЬКО production-зависимости
-# Добавляем cross-env в production, так как он используется в вашем npm start
-RUN npm install cross-env --omit=dev --legacy-peer-deps
+# Устанавливаем только production-зависимости стабильным способом
+RUN npm ci --omit=dev --legacy-peer-deps
 
 # Переменные окружения для Google Cloud Run
 ENV NODE_ENV production
 ENV PORT 8080
-EXPOSE 8080
 
-# Запуск через npm start гарантирует выполнение вашей команды:
-# "cross-env NODE_ENV=production node dist/server/index.js"
-CMD [ "npm", "start" ]
+# Запуск напрямую через node без лишних прослоек (cross-env, npm start)
+# Это быстрее, надежнее и экономит память
+CMD [ "node", "dist/server/index.js" ]

@@ -10,7 +10,8 @@ import { User, IUser } from "./models/users.js";
 import { WeightLog } from "./models/weightLog.js";
 import { connectDB } from "./db.js";
 import bot from "./bot.js";
-import { createServer as createViteServer } from "vite";
+// import { createServer as createViteServer } from "vite"; // Not needed here as it's dev-only and will be imported dynamically
+
 
 declare global {
     namespace Express {
@@ -40,7 +41,9 @@ async function startServer() {
     const isProd = process.env.NODE_ENV === "production";
 
     if (!isProd) {
+        const { createServer: createViteServer } = await import("vite");
         vite = await createViteServer({
+
             server: { middlewareMode: true },
             appType: "custom",
         });
