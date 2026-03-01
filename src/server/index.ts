@@ -351,7 +351,7 @@ async function startServer() {
     app.post("/api", api as any);
     app.all("/api/reminder", api as any);
 
-    app.listen(port, () => {
+    app.listen(Number(port), '0.0.0.0', () => {
         console.log(`Server running on http://localhost:${port} in ${isProd ? "production" : "development"} mode`);
     });
 
