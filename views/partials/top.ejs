@@ -4,7 +4,6 @@
 <head>
 <% } %>
     <meta charset="UTF-8" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Liner</title>
 
@@ -13,6 +12,14 @@
     <!-- Основные стили -->
     <link rel="shortcut icon" href="/images/icon.svg"/>
 
+    <% if (typeof stylesheets !== 'undefined') { %>
+        <% stylesheets.forEach(href => { %>
+            <link rel="stylesheet" href="<%= href %>">
+        <% }) %>
+    <% } %>
+    <% if (typeof script !== 'undefined') { %>
+        <script type="module" src="<%= script %>"></script>
+    <% } %>
 </head>
 <% if (typeof window !== 'undefined') { %>
 <body>

@@ -67,8 +67,29 @@ async function startServer() {
             console.warn(`No manifest entry found for: ${manifestKey}`);
             return { script: "", stylesheets: [] };
         }
+
         const script = `/${entryData.file}`;
-        const stylesheets = entryData.css ? entryData.css.map((css: string) => `/${css}`) : [];
+        const stylesheets: string[] = [];
+
+        if (entryData.css) {
+            entryData.css.forEach((css: string) => stylesheets.push(`/${css}`));
+        }
+
+        // В Vite 5+ стили могут быть в импортируемых чанках
+        if (entryData.imports) {
+            entryData.imports.forEach((importKey: string) => {
+                const importData = manifest[importKey];
+                if (importData && importData.css) {
+                    importData.css.forEach((css: string) => {
+                        const cssPath = `/${css}`;
+                        if (!stylesheets.includes(cssPath)) {
+                            stylesheets.push(cssPath);
+                        }
+                    });
+                }
+            });
+        }
+
         return { script, stylesheets };
     }
 
@@ -76,6 +97,8 @@ async function startServer() {
         const [y, m, d] = dateStr.split("-");
         return `${d}.${m}.${y}`;
     };
+
+
 
     app.set("view engine", "ejs");
     app.set("views", path.join(process.cwd(), "views"));
@@ -191,6 +214,7 @@ async function startServer() {
         res.render("layout", {
             body: "register",
             user: req.user,
+            botUsername: LINER_BOT_USERNAME,
             ...getAssets("main"), // Или какой-то другой ассет, если для регистрации нужен свой
         });
     });
@@ -286,6 +310,7 @@ async function startServer() {
         res.render("layout", {
             body: "news",
             user: req.user,
+            botUsername: LINER_BOT_USERNAME,
             ...getAssets("main"),
         });
     });

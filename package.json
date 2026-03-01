@@ -8,7 +8,7 @@
     "build:server": "tsc",
     "build:client": "vite build",
     "build": "npm run build:client && npm run build:server",
-    "start": "NODE_ENV=production node dist/server/index.js",
+    "start": "cross-env NODE_ENV=production node dist/server/index.js",
     "dev": "tsx src/server/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -41,6 +41,7 @@
     "@types/passport-google-oauth20": "^2.0.17",
     "@types/sharp": "^0.31.1",
     "@vitejs/plugin-vue": "^6.0.4",
+    "cross-env": "^10.1.0",
     "sass-embedded": "^1.97.3",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",

@@ -3,7 +3,9 @@
     <body>
 <% } %>
 <%- include('partials/top',{
-    user:user
+    user:user,
+    stylesheets: typeof stylesheets !== 'undefined' ? stylesheets : [],
+    script: typeof script !== 'undefined' ? script : undefined
 }) %>
 <main>
     <%- include(body) %>
@@ -11,12 +13,6 @@
 <footer class="footer">
 
 </footer>
-<% if (typeof script !== 'undefined') { %>
-    <% (typeof stylesheets !== 'undefined' ? stylesheets : []).forEach(href => { %>
-        <link rel="stylesheet" href="<%= href %>">
-    <% }) %>
-    <script type="module" src="<%= script %>"></script>
-<% } %>
 
 </body>
 <!-- suppresses Inspection 'XmlUnboundNsPrefix' -->
