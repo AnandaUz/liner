@@ -1,17 +1,17 @@
-import { IUser } from '@shared/types';
+import type { IUser } from '@shared/types';
+import { fetchWithAuth } from './api';
 
-interface ApiResponse {
-  data: IUser[];
-}
-
+let cache: IUser[] | null = null;
 export async function getUsers(): Promise<IUser[]> {
-  const response = await fetch('http://localhost:8080/api/data');
 
+  if (cache) return cache;
 
-  const data: IUser[] = json.data;
-  return data;
+  const response = await fetchWithAuth(`/api/users`);
 
+  if (!response.ok) {
+    throw new Error(`Ошибка сервера: ${response.status}`);
+  }
 
-  const json: ApiResponse = await response.json();
-  return json.data;
+  cache = await response.json() as IUser[];
+  return cache;
 }

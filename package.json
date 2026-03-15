@@ -9,7 +9,10 @@
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "build:client": "npm run build --workspace=client",
     "build:server": "npm run build --workspace=server",
-    "build": "npm run build --workspaces --if-present"
+    "build": "npm run build --workspaces --if-present",
+    "snap:all": "tsx .tools/snap.ts",
+    "snap:server": "tsx .tools/snap.ts --dir ./server --ext .ts,.json",
+    "snap:client": "tsx .tools/snap.ts --dir ./client --ext .ts,.json"
   },
   "keywords": [],
   "author": "",

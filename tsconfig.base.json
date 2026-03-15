@@ -14,6 +14,9 @@
     "noUnusedLocals": true,         /* Ошибка, если переменная не используется */
     "noUnusedParameters": true,     /* Ошибка, если параметр функции не используется */
     "noFallthroughCasesInSwitch": true,
+
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
     
     /* Пути (опционально) */
     "baseUrl": ".",

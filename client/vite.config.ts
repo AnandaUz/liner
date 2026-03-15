@@ -3,7 +3,11 @@ import { resolve } from 'path';
 
 
 export default defineConfig({
+  css: {
+      devSourcemap: true,
+  },
   server: {
+    
     proxy: {
       // Все запросы, начинающиеся с /api, будут перенаправлены на сервер
       '/api': {
@@ -21,7 +25,11 @@ export default defineConfig({
       '@pages': resolve(__dirname, './src/pages'),
       '@assets': resolve(__dirname, './src/assets'),
       '@styles': resolve(__dirname, './src/styles'),
-      '@shared': resolve(__dirname, '../../shared')
+      '@shared': resolve(__dirname, '../shared'),
+      '@services': resolve(__dirname, './src/services'),
     },
   },
+  build: {
+    assetsInlineLimit: 4096, // файлы меньше 4kb встраиваются как base64
+  }
 });

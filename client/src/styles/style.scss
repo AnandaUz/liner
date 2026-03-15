@@ -23,30 +23,34 @@ body {
   font-weight: 400; /* обычный */
   line-height: 1.2;
   color: rgba(88, 21, 0, 0.8);
-  background: #fff ;
   font-size: 18px;
-  display: flex;
-  flex-direction: column; /* Элементы идут друг под другом */
-  min-height: 100vh;
-  justify-content: space-between;
+  min-height: 100vh;  
   min-width: 320px;
-  background-image: url('@/assets/bg.png');
+  background: url('@/assets/bg.png');
+  display: flex;          
+  flex-direction: column; 
 }
-header,main,footer {
+
+.main-container {
   max-width: 576px;
   width: 100%;
-
+  flex: 1;
   margin: 0 auto;
-  background: rgb(243 250 253 / 84%);
-
+  background: rgb(243 250 253 / 50%) url('@/assets/bg_add.svg') no-repeat center top;
+  display: flex;
+  flex-direction: column;
+  // justify-content: space-between;
+  min-height: 100vh;
   @include breakpoints.tablet {
     max-width: 1000px;
   }
 }
 main {
   flex-grow: 1;
+  
 }
 footer {
+  flex-shrink: 0;
   background: rgba(187, 211, 227, 0.66);
   height: 20px;
   font-size: 12px;
@@ -56,11 +60,26 @@ footer {
   justify-content: center;
 }
 header {
+  flex-shrink: 0;
   a {
-    color: aquamarine;
+    color: #939393;
+    text-decoration: none;
     &.active {
       color: #646cff;
     }
+  }
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    padding: 5px;
+  }
+  .logo {
+    background: url('@assets/i_home.svg') no-repeat center center;
+    background-size: contain;
+    width: 35px;
+    height: 35px;
+    display: inline-block;
   }
 }
 h1 {
@@ -146,14 +165,40 @@ h1 {
     color: var(--darkBlue);
   }
 }
-.ul_level {
+.ul-level {
   list-style-type: circle;
-  padding: 0 25px;
+  padding: 0 0 0 25px;
   li {
     margin-bottom: 5px;
   }
   &.l2 {
-    padding: 0 50px;
+    padding: 0 0 0 50px;
     font-size: 14px;
   }
+}
+.right-bl {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.btn-settings {
+  background: url('@assets/i_settings.svg') no-repeat center center;
+  background-size: contain;
+  width: 28px;
+  height: 28px;
+  display: inline-block;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+  &:hover {
+    opacity: 1;
+  }
+}
+p {
+  margin: 10px 20px;
+}
+
+.center-bl {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

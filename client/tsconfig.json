@@ -3,13 +3,15 @@
   "compilerOptions": {
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["vite/client"],
+    "types": ["vite/client","google.accounts"],
 
     /* Bundler mode */
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
+
+    "sourceMap": true,
 
     /* Linting */
     "erasableSyntaxOnly": true,
@@ -22,7 +24,8 @@
       "@pages/*": ["src/pages/*"],
       "@assets/*": ["src/assets/*"],
       "@styles/*": ["src/styles/*"],
-      "@shared/*": ["../shared/*"]
+      "@shared/*": ["../shared/*"],
+      "@services/*": ["src/services/*"]
     }
   },
   "include": ["src", "../shared"]

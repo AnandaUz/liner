@@ -1,14 +1,20 @@
+import '../components/c-users-list';
+import { getUser } from '@/services/auth.service';
+
 export function homePage() {
+
+  const user = getUser();
   return {
     html: `
       <section>
-        <h1>Home</h1>
-        <p>Добро пожаловать</p>
+
+      
+        
+        <c-users-list></c-users-list>
       </section>
     `,
     init() {
-      // логика специфичная для этой страницы
-      console.log('home page ready');
+
     }
   };
 }

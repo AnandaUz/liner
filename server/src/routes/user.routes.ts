@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {createUser, getAllUsers, getUserById, updateSettings} from '../controllers/user.controller';
 
+
 const router = Router();
 
 // Когда кто-то зайдет на /api/users (POST), сработает создание
@@ -15,3 +16,4 @@ router.get('/:id', getUserById);
 router.put('/:id/settings', updateSettings);
 
 export default router;
+

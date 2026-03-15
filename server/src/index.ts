@@ -3,7 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from './db';
 import userRoutes from './routes/user.routes';
-import { googleAuth } from './controllers/auth.controller';
+import authRoutes from './routes/auth.routes';
+
 
 dotenv.config({ path: '../.env' });
 
@@ -17,9 +18,8 @@ app.use(cors({
 app.use(express.json());
 
 app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
 
-// Google Auth verify endpoint
-app.post('/api/auth/google', googleAuth);
 
 // API routes
 app.get('/api/data', (req: Request, res: Response) => {

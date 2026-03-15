@@ -1,7 +1,8 @@
 // src/types.ts
 
-export type Page = () => {
+export type Page = (params: Record<string, string>) => {
   html: string;
+  title?: string;
   init?: () => void;
 };
 

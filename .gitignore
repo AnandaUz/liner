@@ -44,4 +44,5 @@ dist-ssr
 *.sw?
 
 .agentignore
+.git/
 

@@ -1,5 +1,5 @@
 import { Schema, model, Document } from 'mongoose';
-import { IUser } from '@liner/shared';
+import { IUser, IGoal } from '@shared/types';
 
 export interface IUserDocument extends IUser, Document {}
 
