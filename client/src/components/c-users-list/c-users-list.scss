@@ -1,0 +1,21 @@
+.users-list {
+     
+     font-size: 20px;
+     
+     padding: 10px;
+     border-top: 1px solid rgba(1, 112, 112, 0.322);
+     margin:20px;
+
+     a {
+          color: rgb(1, 112, 112);
+          text-decoration: none;
+          font-size: 15px;
+          &:hover {
+               color: rgb(3, 44, 68);
+          }
+          &:active {
+               color: rgb(19, 62, 87);
+          }
+     }
+     
+}

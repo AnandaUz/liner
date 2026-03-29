@@ -1,0 +1,67 @@
+c-desk {
+
+    height: 500px;
+    overflow: hidden;
+    position: relative;
+    display: block;
+    background: #ffffff9a;
+  
+  .desk{
+    width: 100%;
+    height: 100%;
+
+    background-repeat: repeat;
+    overflow: hidden;
+    position: relative;
+  }
+  svg{
+    position: absolute;
+    top: 0;
+    left: 0;
+    // pointer-events: none;
+    transform-origin: 0 0;
+    will-change: transform;
+  }
+
+}
+.tooltip {
+    position: absolute; /* Абсолютное позиционирование относительно .graph-wrapper */
+    background: rgba(235, 253, 255, 0.8);
+    color: #000000;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    pointer-events: none; /* Важно! Чтобы мышь "проходила сквозь" попап */
+    
+    /* Изначально скрыт */
+    opacity: 0;
+    visibility: hidden;
+    
+    /* Эффект плавного появления */
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    
+    /* Сдвиг, чтобы курсор был по центру нижней грани */
+    transform: translate(-50%, -100%) translateY(-10px);
+    
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    &.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 6px;
+      border-style: solid;
+      border-color: rgba(0, 71, 30, 0.8) transparent transparent transparent;
+    }
+    .label {
+        font-weight: bold;
+        margin-bottom: 2px;
+        color: #aaa;
+    }
+}

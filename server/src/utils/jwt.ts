@@ -6,9 +6,9 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'fallback-refresh-s
 export interface TokenPayload {
   id: string;
   googleId: string;
-  email?: string;
-  name?: string;
-  picture?: string;
+  email?: string | undefined;
+  name?: string | undefined;
+  picture?: string | undefined;
 }
 
 export const generateToken = (payload: TokenPayload): string => {

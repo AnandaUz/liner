@@ -93,6 +93,7 @@ export async function logout(): Promise<void> {
       headers: { 'Authorization': `Bearer ${token}` }
     });
   } finally {
+    removeUser()
     removeTokens();
     history.pushState({}, '', '/welcome');
     render();

@@ -12,7 +12,6 @@
 :root {
   --darkBlue: rgba(0, 46, 80, 0.95);
 }
-
 /* Базовые настройки */
 html {
   font-size: 16px;
@@ -24,30 +23,27 @@ body {
   line-height: 1.2;
   color: rgba(88, 21, 0, 0.8);
   font-size: 18px;
-  min-height: 100vh;  
+   
   min-width: 320px;
   background: url('@/assets/bg.png');
-  display: flex;          
-  flex-direction: column; 
+ 
 }
 
 .main-container {
   max-width: 576px;
   width: 100%;
-  flex: 1;
   margin: 0 auto;
   background: rgb(243 250 253 / 50%) url('@/assets/bg_add.svg') no-repeat center top;
   display: flex;
   flex-direction: column;
-  // justify-content: space-between;
+  justify-content: space-between;
   min-height: 100vh;
   @include breakpoints.tablet {
     max-width: 1000px;
   }
 }
 main {
-  flex-grow: 1;
-  
+  flex-grow: 1;  
 }
 footer {
   flex-shrink: 0;

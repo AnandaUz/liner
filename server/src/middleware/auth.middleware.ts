@@ -12,7 +12,7 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
         return res.status(401).json({ error: 'Не авторизован: отсутствует токен' });
     }
 
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.split(' ')[1] as string;
     const decoded = verifyToken(token);
 
     if (!decoded) {

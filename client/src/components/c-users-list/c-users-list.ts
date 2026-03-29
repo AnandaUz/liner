@@ -1,5 +1,6 @@
-import { getUsers } from '../services/users.service';
+import { getUsers } from '../../services/users.service';
 import type { IUser } from '@shared/types';
+import './c-users-list.scss';
 
 class CUsersList extends HTMLElement {
   async connectedCallback() {
@@ -16,7 +17,7 @@ class CUsersList extends HTMLElement {
 
   render(users: IUser[]) {
     this.innerHTML = `
-      <ul class="users-list ul-level">
+      <ul class="users-list">
         ${users.map(user => `
           <li class="users-list__item">
             <a href="/user/${user.id}">${user.name}</a>

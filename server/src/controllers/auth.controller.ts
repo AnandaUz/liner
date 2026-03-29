@@ -95,7 +95,7 @@ export const registerUser = async (req: Request, res: Response) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) return res.status(401).json({ error: 'Нет токена' });
 
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.split(' ')[1] as string;
     const payload = verifyToken(token);
     if (!payload) return res.status(401).json({ error: 'Невалидный токен' });
 
@@ -127,7 +127,7 @@ export const verifySession = async (req: Request, res: Response) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) return res.status(401).json({ error: 'Нет токена' });
 
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.split(' ')[1] as string;
     const payload = verifyToken(token);
     if (!payload) return res.status(401).json({ error: 'Токен недействителен' });
 
@@ -144,7 +144,7 @@ export const logout = async (req: Request, res: Response) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) return res.status(401).json({ error: 'Нет токена' });
 
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.split(' ')[1] as string;
     const payload = verifyToken(token);
     if (!payload) return res.status(401).json({ error: 'Невалидный токен' });
 

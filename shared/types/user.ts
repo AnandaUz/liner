@@ -27,3 +27,5 @@ export interface IUser {
         goals: IGoal[];
     };
 }
+
+

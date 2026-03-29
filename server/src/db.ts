@@ -9,7 +9,7 @@ export const connectDB = async () => {
     }
     try {
         await mongoose.connect(MONGO_URI, {
-            dbName: process.env.MONGODB_BASE_NAME
+            dbName: process.env.MONGODB_BASE_NAME as string
         });
         console.log('MongoDB connected successfully');
     } catch (error) {

@@ -21,7 +21,7 @@ class CUserMenu extends HTMLElement {
     <div class="dropdown">
       ${content}
       <div class="dropdown-divider"></div>
-      <a id="logout-btn" href="/welcome">выйти</a>
+      <a id="logout-btn" href="#">выйти</a>
     </div>
   </div>
     `

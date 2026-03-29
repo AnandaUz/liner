@@ -1,12 +1,12 @@
-import express, { Request, Response } from 'express';
+import './config';
+import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import { connectDB } from './db';
 import userRoutes from './routes/user.routes';
 import authRoutes from './routes/auth.routes';
-
-
-dotenv.config({ path: '../.env' });
+import weightLogRoutes from './routes/weightLog.routes';
+import telegramRoutes from './routes/telegram.routes';
+import { bot } from './bot';
 
 const app = express();
 
@@ -15,24 +15,23 @@ const port = process.env.PORT;
 app.use(cors({
     origin: 'http://localhost:5173'
 }));
+
+
 app.use(express.json());
 
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/weightLog', weightLogRoutes);
 
-
-// API routes
-app.get('/api/data', (req: Request, res: Response) => {
-    res.json({
-        message: 'Hello from Express API!',
-        timestamp: new Date().toISOString(),
-        data: [
-            { id: 1, name: 'Item 1' },
-            { id: 2, name: 'Item 2' },
-            { id: 3, name: 'Item 3' },
-        ],
-    });
+app.post('/api/telegram/webhook', async (req, res) => {
+  try {
+    await bot.handleUpdate(req.body, res);
+  } catch (err) {
+    console.error('Webhook error:', err);
+    res.status(200).send('ok');
+  }
 });
+app.use('/api/telegram', telegramRoutes);
 
 connectDB();
 
