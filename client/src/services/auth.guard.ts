@@ -1,5 +1,3 @@
-// client/src/services/auth.guard.ts
-
 import { getToken, removeTokens, refreshAccessToken } from './auth.service';
 import { render } from '../router';
 

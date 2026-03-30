@@ -6,16 +6,26 @@ import { renderFooter } from './components/footer'; // добавить
 import { authGuard } from './services/auth.guard';
 import { handleCredential } from './services/auth.service';
 
-google.accounts.id.initialize({
-  client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-  callback: handleCredential,
-});
+const startGoogleAuth = async () => {
+  if (typeof google !== 'undefined') {
+    google.accounts.id.initialize({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      callback: handleCredential,
+    });
+    await authGuard();
+    render();
+
+  } else {
+    // Если скрипт Google еще не готов, пробуем снова через 100мс
+    setTimeout(startGoogleAuth, 100);
+    render();
+  }
+};
 
 async function init() {
   renderHeader();
   renderFooter();
-  await authGuard();
-  render();
+  startGoogleAuth();
 }
 init();
 
@@ -39,25 +49,3 @@ window.addEventListener('popstate', () => {
       render();
     });
 });
-
-
-/*
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-    <button id="settings-btn">Settings</button>
-  </div>
-`
-
-
-document.querySelector<HTMLButtonElement>('#settings-btn')!
-  .addEventListener('click', () => navigate('/settings'))
-
-  */
