@@ -35,9 +35,9 @@ function matchRoute(routes: Routes, path: string): { page: Page; params: Record<
     if (match) {
       const params: Record<string, string> = {};
       paramNames.forEach((name, i) => {
-        params[name] = match[i + 1];
+        params[name] = match[i + 1] ?? '';
       });
-      return { page: routes[pattern], params };
+      return { page: routes[pattern] ?? notFoundPage, params };
     }
   }
 

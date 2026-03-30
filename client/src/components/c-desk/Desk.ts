@@ -251,7 +251,7 @@ export class Desk {
         circle.classList.add("chart-point");    
         circle.setAttribute("fill", '#00000000');
 
-        circle.addEventListener('mouseover', (e: MouseEvent) => {
+        circle.addEventListener('mouseover', () => {
             const rect = circle.getBoundingClientRect()
             const x = rect.left + rect.width / 2
             const y = rect.top + rect.height / 2
@@ -282,7 +282,7 @@ export class Desk {
              this.showTooltip(x, y, html);
         }       )
 
-        circle.addEventListener('mouseout', (e: MouseEvent) => {
+        circle.addEventListener('mouseout', () => {
             this.hideTooltip();
         });
         return circle;

@@ -1,4 +1,4 @@
-import { getUser } from "@/services/auth.service";
+
 import "./c-desk.scss";
 import { getWeightLog } from "@/services/weightLog.service";
 import { Desk } from "./Desk";
