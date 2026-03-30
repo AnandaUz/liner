@@ -11,8 +11,7 @@ export const userPage: Page = ({ id }) => {
       <section>
         <c-desk></c-desk> 
         <c-users-list></c-users-list>
-      </section>
-    
+      </section>    
     </section>`,
     async init() {
       const users = await getUsers(); // из кэша, без запроса
