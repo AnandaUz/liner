@@ -1,6 +1,9 @@
 {
   "name": "liner",
   "version": "0.7.0",
+  "engines": {
+    "node": "22.x"
+  },
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
