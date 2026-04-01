@@ -17,7 +17,7 @@ WORKDIR /app
 
 # Копируем node_modules из этапа deps
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/server/node_modules ./server/node_modules
+
 
 # Копируем исходники проекта
 COPY package.json ./
