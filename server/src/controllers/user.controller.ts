@@ -17,7 +17,7 @@ export const createUser = async (req: Request, res: Response) => {
         res.status(400).json({ error: error.errors || "Ошибка валидации" });
     }
 };
-export const getAllUsers = async (req: Request, res: Response) => {
+export const getAllUsers = async (_req: Request, res: Response) => {
     try {
         const users = await User.find({}).select('-__v').lean();
         const mappedUsers = users.map((u: any) => {
