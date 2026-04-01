@@ -16,6 +16,9 @@ app.use(cors({
     origin: process.env.CLIENT_URL || ''
 }));
 
+app.get("/", (_req, res) => {
+    res.send("работаю");
+});
 app.use(express.json());
 
 app.use('/api/users', userRoutes);
