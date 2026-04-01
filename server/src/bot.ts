@@ -1,6 +1,6 @@
 import { Telegraf, Context } from 'telegraf';
-import { User } from './models/User';
-import { WeightLog } from './models/WeightLog';
+import { User } from './models/User.js';
+import { WeightLog } from './models/WeightLog.js';
 
 const BOT_TOKEN = process.env.BOT_TOKEN || 'dummy-token';
 

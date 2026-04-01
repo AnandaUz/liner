@@ -41,4 +41,4 @@ COPY --from=builder /app/server/dist ./server/dist
 RUN npm ci --omit=dev --ignore-scripts
 
 EXPOSE 8080
-CMD ["node", "server/dist/index.js"]
+CMD ["node", "server/dist/server/src/index.js"]

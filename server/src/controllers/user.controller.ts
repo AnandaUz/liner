@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { User } from '../models/User';
-import { createUserSchema } from "../schemas/user.schema"; // проверь путь до своей модели
+import { User } from '../models/User.js';
+import { createUserSchema } from "../schemas/user.schema.js"; // проверь путь до своей модели
 
 export const createUser = async (req: Request, res: Response) => {
     try {

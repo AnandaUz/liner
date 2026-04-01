@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getWeightLogByUserId } from '../controllers/weightLog.controller';
+import { getWeightLogByUserId } from '../controllers/weightLog.controller.js';
 
 const router = Router();
 

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { WeightLog } from '../models/WeightLog';
+import { WeightLog } from '../models/WeightLog.js';
 
 export const getWeightLogByUserId = async (req: Request, res: Response) => {
   try {

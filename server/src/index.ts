@@ -1,12 +1,12 @@
-import './config';
+import './config.js';
 import express from 'express';
 import cors from 'cors';
-import { connectDB } from './db';
-import userRoutes from './routes/user.routes';
-import authRoutes from './routes/auth.routes';
-import weightLogRoutes from './routes/weightLog.routes';
-import telegramRoutes from './routes/telegram.routes';
-import { bot } from './bot';
+import { connectDB } from './db.js';
+import userRoutes from './routes/user.routes.js';
+import authRoutes from './routes/auth.routes.js';
+import weightLogRoutes from './routes/weightLog.routes.js';
+import telegramRoutes from './routes/telegram.routes.js';
+import { bot } from './bot.js';
 
 const app = express();
 

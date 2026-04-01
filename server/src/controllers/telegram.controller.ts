@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { verifyToken } from '../utils/jwt';
+import { verifyToken } from '../utils/jwt.js';
 
 export const getTelegramLink = async (req: Request, res: Response) => {
   try {

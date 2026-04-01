@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getTelegramLink } from '../controllers/telegram.controller';
+import { getTelegramLink } from '../controllers/telegram.controller.js';
 
 const router = Router();
 
