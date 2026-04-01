@@ -26,7 +26,7 @@ COPY shared/ ./shared/
 COPY server/ ./server/
 
 # Собираем сервер
-RUN npm run build:server --workspace=server
+RUN npm run build --workspace=server
 
 # Stage 3: Runner
 FROM node:24-alpine AS runner
@@ -43,6 +43,7 @@ ENV PORT 8080
 # Копируем только необходимые файлы для запуска
 COPY --from=builder /app/package.json /app/package-lock.json ./
 COPY --from=builder /app/server/package.json ./server/
+COPY --from=builder /app/client/package.json ./client/
 COPY --from=builder /app/server/dist ./server/dist
 
 # Устанавливаем только ПРОДАКШН зависимости (чтобы уменьшить размер образа)
