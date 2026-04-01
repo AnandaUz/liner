@@ -34,7 +34,7 @@ ENV PORT 8080
 # Копируем только необходимые файлы для запуска
 COPY --from=builder /app/package.json /app/package-lock.json ./
 COPY --from=builder /app/server/package.json ./server/
-COPY --from=builder /app/client/package.json ./client/
+
 COPY --from=builder /app/server/dist ./server/dist
 
 # Устанавливаем только продакшн зависимости
