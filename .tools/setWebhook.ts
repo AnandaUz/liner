@@ -1,39 +1,18 @@
-//npx tsx .tools/setWebhook.ts
+import { setWebhook, WebhookConfig } from "@base/shared/.tools/setWebhook";
 
-import dotenv from "dotenv";
-
-dotenv.config({ path: new URL('../.env', import.meta.url) });
-
-import { Telegraf } from "telegraf";
-
-
-const isForDev = true;
-
-let bot;
-bot = new Telegraf(process.env.BOT_TOKEN || '');
-let url: string;
-
-const apiUrl = '/api/telegram/webhook';
-
-if (isForDev) {
-    
-
-//для дев версии
-    const grokUrl = 'efbc-92-253-195-238'
-    url = 'https://'+grokUrl+'.ngrok-free.app'+apiUrl
-    console.log(`установил веб хук для ДЕВ бота \n ${url}`)
-
-} else {
-
-
-//для прод версии
-    url = process.env.API_URL+apiUrl    
-    console.log(`установил веб хук для ОСНОВНОГО бота 
- ${url}`)
-    
+const webhookConfig: WebhookConfig = {
+    mode: 'local',
+    // mode: 'preprod',
+    // mode: 'prod',
+    ngrokUrl: 'a41b-92-253-192-234',
+    apiUrl: '/api/telegram/webhook',
+    prod: {
+        BOT_TOKEN: '8112562344:AAG6zxep8WyHBa3udr5Bs4hLXE2OStrumnE',
+        API_URL: 'https://api.liner.uz'
+    },
+    preprod: {
+        BOT_TOKEN: '8583411735:AAFRPi__ho5UOSAlUvL3ak4PH6_osyYxR38',
+        API_URL: 'https://preprod.liner.uz'
+    }
 }
-bot.telegram.setWebhook(url);
-
-
-
-
+setWebhook(webhookConfig);
