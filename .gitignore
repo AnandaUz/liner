@@ -16,7 +16,8 @@ npm-debug.log*
 # Временные файлы Vite
 client/dist/
 
-.tools_js/
+.tools/
+.data/
 
 # Logs
 logs
