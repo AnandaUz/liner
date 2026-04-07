@@ -1,1 +1,0 @@
-.tools/setWebhook.ts(1,43): error TS2307: Cannot find module '@base/shared/.tools/setWebhook' or its corresponding type declarations.
