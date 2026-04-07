@@ -1,7 +1,10 @@
 steps:
   # Инициализируем git submodules (_base и др.)
   - name: 'gcr.io/cloud-builders/git'
-    args: ['submodule', 'update', '--init', '--recursive']
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - 'git submodule update --init --recursive'
 
   # Собираем Docker образ
   - name: 'gcr.io/cloud-builders/docker'
