@@ -1,4 +1,7 @@
 import mongoose from 'mongoose';
+import dns from 'dns';
+
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 export const connectDB = async () => {
     const MONGO_URI = process.env.MONGODB_URI;
@@ -9,7 +12,8 @@ export const connectDB = async () => {
     }
     try {
         await mongoose.connect(MONGO_URI, {
-            dbName: process.env.MONGODB_BASE_NAME as string
+            dbName: process.env.MONGODB_BASE_NAME as string,
+            family: 4
         });
         console.log('MongoDB connected successfully');
     } catch (error) {
