@@ -67,4 +67,4 @@ const userSchema = new Schema<IUserDocument>({
 });
 
 // 3. Создаем модель: это "пульт управления" коллекцией пользователей.
-export const User = model<IUserDocument>('users_v1', userSchema);
+export const User = model<IUserDocument>('users', userSchema);

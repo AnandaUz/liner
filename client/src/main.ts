@@ -21,7 +21,6 @@ const startGoogleAuth = async () => {
     render();
   }
 };
-
 async function init() {
   renderHeader();
   renderFooter();
@@ -49,3 +48,4 @@ window.addEventListener('popstate', () => {
       render();
     });
 });
+

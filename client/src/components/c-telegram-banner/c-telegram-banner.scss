@@ -1,15 +1,20 @@
-// client/src/components/c-telegram-banner/c-telegram-banner.scss
+@use "@base/shared/client/scss/breakpoints";
 
 .tg-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
+  gap: 3px;
+  padding: 10px;
   background: #e8f4fd;
   border: 1px solid #b3d9f7;
   border-radius: 8px;
-  margin-bottom: 1.5rem;
+  margin: 10px;
+  flex-direction: column;
+
+  @include breakpoints.tablet {
+    flex-direction: row;
+  }  
 
   p {
     margin: 0;

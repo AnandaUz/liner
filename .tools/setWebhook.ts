@@ -4,7 +4,7 @@ const webhookConfig: WebhookConfig = {
     mode: 'local',
     // mode: 'preprod',
     // mode: 'prod',
-    ngrokUrl: 'a41b-92-253-192-234',
+    ngrokUrl: 'dde5-92-253-192-234',
     apiUrl: '/api/telegram/webhook',
     prod: {
         BOT_TOKEN: '8112562344:AAG6zxep8WyHBa3udr5Bs4hLXE2OStrumnE',
