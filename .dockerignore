@@ -3,6 +3,3 @@ client
 **/dist
 **/*.local
 .git
-
-# Разрешаем только package.json из client для npm workspaces
-!client/package.json

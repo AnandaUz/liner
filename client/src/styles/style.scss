@@ -1,14 +1,42 @@
-@use "@base/shared/client/scss/breakpoints";
-
+@use "@base/client/scss/breakpoints";
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;  
 }
+/* montserrat-regular - latin */
+@font-face {
+  font-display: swap;
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@assets/fonts/montserrat-v31-cyrillic_latin-regular.woff2') format('woff2');
+}
+/* montserrat-italic - latin */
+@font-face {
+  font-display: swap; 
+  font-family: 'Montserrat';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@assets/fonts/montserrat-v31-cyrillic_latin-italic.woff2') format('woff2'); 
+}
+/* montserrat-600 - latin */
+@font-face {
+  font-display: swap;
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('@assets/fonts/montserrat-v31-cyrillic_latin-600.woff2') format('woff2');
+}
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400; /* обычный */
 }
 :root {
   --darkBlue: rgba(0, 46, 80, 0.95);
@@ -81,24 +109,12 @@ header {
 }
 h1 {
   color: rgba(255, 68, 0, 0.75);
-  font-size: 28px;
+  font-size: 25px;
   text-align: center;
   font-weight: normal;
   position: relative;
   line-height: 0.9;
-  padding: 0 2px 4px;
-
-  &:before {
-    content: "";
-    display: block;
-    position: absolute;
-
-    width: 80%;
-    height: 1px;
-    bottom: 1px;
-
-    background: rgba(89, 0, 0, 0.35);
-  }
+  padding: 0 2px 4px;  
 }
 .login {
   text-align: right;

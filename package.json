@@ -1,25 +1,30 @@
 {
   "name": "liner",
   "version": "0.7.5",
-
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnandaUz/liner.git"
+  },
   "scripts": {
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev",
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "build:client": "cd client && npm run build",
-    "build:server": "cd server && npm run build",
-    "build": "npm run build --workspaces --if-present"
+    "build:server": "cd server && npm run build"
   },
   "workspaces": [
     "client",
     "server"
   ],
   "devDependencies": {
-    "concurrently": "^9.2.1", 
-    "typescript": "^5.9.3"
+    "@types/node": "^25.5.2",
+    "concurrently": "^9.2.1",
+    "googleapis": "^171.4.0",
+    "rollup": "^4.60.1",
+    "tsx": "^4.20.5",
+    "typescript": "^6.0.2"
   },
   "dependencies": {
-    "mongodb": "^7.1.1",
-    "@base/shared": "file:./_base"
+    "mongodb": "^7.1.1"
   }
 }

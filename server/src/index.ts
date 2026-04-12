@@ -1,7 +1,7 @@
-import './config.js';
+import '../../_base/server/config.js';
 import express from 'express';
 import cors from 'cors';
-import { connectDB } from './db.js';
+import { connectDB } from '../../_base/server/db.js';
 import userRoutes from './routes/user.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import weightLogRoutes from './routes/weightLog.routes.js';

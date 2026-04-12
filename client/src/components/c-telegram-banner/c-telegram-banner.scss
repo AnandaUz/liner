@@ -1,4 +1,4 @@
-@use "@base/shared/client/scss/breakpoints";
+@use "@base/client/scss/breakpoints";
 
 .tg-banner {
   display: flex;
@@ -27,11 +27,20 @@
     background: #2AABEE;
     color: white;
     border-radius: 6px;
-    font-weight: 500;
+    font-size: 16px;
+    border: none;
+    text-decoration: none;
+    cursor: pointer;
 
     &:hover {
       background: #1a9bd8;
       text-decoration: none;
+    }
+  }
+  .just {
+    background: #ee682a;
+    &:hover {
+      background: #ac3803;
     }
   }
 }

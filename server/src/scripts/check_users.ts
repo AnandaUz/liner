@@ -1,4 +1,4 @@
-import { connectDB } from '../db.js';
+import { connectDB } from '../../../_base/server/db.js';
 import { User } from '../models/User.js';
 import mongoose from 'mongoose';
 
