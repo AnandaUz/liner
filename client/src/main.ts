@@ -1,8 +1,8 @@
 import '@styles/style.scss'
 import { render } from './router';
 
-import { renderHeader } from './components/header'; // добавить
-import { renderFooter } from './components/footer'; // добавить
+import { renderHeader } from './components/header'; 
+import { renderFooter } from './components/footer'; 
 import { authGuard } from './services/auth.guard';
 import { handleCredential } from './services/auth.service';
 
