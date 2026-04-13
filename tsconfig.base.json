@@ -16,10 +16,5 @@
 
     "exactOptionalPropertyTypes": true,
     "noUncheckedIndexedAccess": true,      
-
-    "baseUrl": ".",
-    "paths": {
-      "@shared/*": ["shared/*"]
-    }
   }
 }
