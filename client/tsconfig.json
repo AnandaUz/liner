@@ -29,6 +29,5 @@
       "@base/*": ["../_base/*"],
       "@services/*": ["./src/services/*"]
     }
-  },
-  "include": ["src", "../shared", "../_base"]
+  }
 }

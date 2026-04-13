@@ -17,7 +17,7 @@ app.use(cors({
 }));
 
 app.get("/", (_req, res) => {
-    res.send("работаю+");
+    res.send("работаю");
 });
 app.use(express.json());
 
