@@ -5,6 +5,7 @@
     "type": "git",
     "url": "git+https://github.com/AnandaUz/liner.git"
   },
+  "type": "module",
   "scripts": {
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev",
