@@ -21,6 +21,7 @@ RUN npm install
 
 # sources
 COPY server ./server
+COPY shared ./shared
 
 
 RUN npm install
