@@ -1,5 +1,5 @@
 import { Schema, model, Document } from 'mongoose';
-import { IUser, IGoal } from '@shared/types/index.js';
+import { IUser, IGoal } from '../../../shared/types/index.js';
 
 export interface IUserDocument extends IUser, Document {}
 
