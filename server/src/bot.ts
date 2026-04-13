@@ -1,4 +1,5 @@
 import { Telegraf, Context } from 'telegraf';
+import { Request, Response } from 'express';
 import { User } from './models/User.js';
 import { WeightLog } from './models/WeightLog.js';
 
@@ -131,7 +132,13 @@ bot.on('message', async (ctx) => {
 });
 
 /* Напоминания */
-export async function doReminder() {
+export async function doReminder(req: Request, res: Response) {
+  const password = req.query.password;
+  if (password !== process.env.PASSWORD) {
+    res.status(401).send('Unauthorized');
+    return;
+  }
+
   try {
     const dNow = new Date();
     dNow.setHours(12, 0, 0, 0);
@@ -154,7 +161,10 @@ export async function doReminder() {
       }
       await new Promise(r => setTimeout(r, 50));
     }
+    
+    res.status(200).send('Reminders processed');
   } catch (err) {
     console.error('Ошибка в doReminder:', err);
+    res.status(500).send('Internal Server Error');
   }
 }
