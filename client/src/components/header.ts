@@ -18,7 +18,7 @@ export function renderHeader(): void {
       
       ${isAuth ? `            
           <div class="right-bl">
-            <a href="/settings" class="btn-settings"></a>
+            <a href="/settings" aria-label="Настройки" class="btn-settings"></a>
             <c-user-menu>
               <a href="/news">новости</a>
               
