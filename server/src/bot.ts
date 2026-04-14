@@ -81,8 +81,9 @@ async function addWeight(ctx: Context, user: any) {
     date = new Date(`20${year}-${month}-${day}`);
   } else {
     date = new Date();
-    date.setHours(12, 0, 0, 0);
+    
   }
+  date.setHours(12, 0, 0, 0);
 
   const weight = Number(match[2].replace(',', '.'));
   if (Number.isNaN(weight)) {
@@ -90,8 +91,8 @@ async function addWeight(ctx: Context, user: any) {
     return;
   }
 
-  const comment = match[3]?.trim() || '';
-  const userUrl = `${process.env.BASE_URL || 'https://liner.esho.uz'}/user/${user._id}`;
+  const comment = match[3]?.trim() || null;
+  const userUrl = `${process.env.BASE_URL || ''}/user/${user._id}`;
 
   await ctx.reply(
     `Вес сохранён: ${weight} кг\n<a href="${userUrl}">ваша страница</a>`,
