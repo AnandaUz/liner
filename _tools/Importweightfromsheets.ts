@@ -4,23 +4,42 @@ import '../_base/server/config'
 import { google } from "googleapis";
 import { MongoClient, ObjectId } from "mongodb";
 import * as path from "path";
+import { fileURLToPath } from "url";
+
+import { promises as dns } from "dns";
+
+
+// Принудительно устанавливаем публичные DNS-серверы Google для обхода ошибки ECONNREFUSED
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ─── НАСТРОЙКИ (меняй только здесь) ───────────────────────────────────────────
 
-const USER_ID = "69d4cdc6f6b8cbfd259ba80d"; // мамин
+// const USER_ID = "69d4cdc6f6b8cbfd259ba80d"; // мамин
 // const USER_ID = "69d4a2977985a8e16b747559"; // мой локальный
+// const USER_ID = "69d4d8915b58b41f7f3cdd8b"; // ира
+// const pageName = "irina"
+const USER_ID = "69d4df211937a91e21900cd7"; // Парвати
+const pageName = "parvati"
+const diapozon = "A2:E6"
+
 const SPREADSHEET_ID = process.env.G_DATA_PAGE_ID as string;  // из URL таблицы
-const SHEET_RANGE = "A2:E335";              // диапазон ячеек (без заголовка)
+const SHEET_RANGE = `${pageName}!${diapozon}`;              // диапазон ячеек (без заголовка)
 
 // const MONGO_URI = "mongodb://localhost:27017";
 const MONGO_URI = process.env.MONGODB_URI as string
 const MONGO_DB = process.env.MONGODB_BASE_NAME as string
+
 const COLLECTION = "weightlogs";
 
 // Путь к JSON-ключу сервисного аккаунта Google
 const GOOGLE_KEY_PATH = path.join(__dirname, "../.data/key_for_migration_from_google_sheets.json");
 
-let t=5
+let t=5000000
 // ──────────────────────────────────────────────────────────────────────────────
 
 interface IWeightLog {
@@ -87,8 +106,6 @@ async function fetchFromSheets(): Promise<Array<Item>> {
   const result: Array<Item> = [];
   let skipped = 0;
 
-  
-
   for (let i = 0; i < rows.length; i++) {
      if (t <= 0) break
      t --
@@ -98,16 +115,15 @@ async function fetchFromSheets(): Promise<Array<Item>> {
     const date = parseDate(rawDate);
     let weight = parseWeight(rawWeight);
     
-    let str_coment = ''
-    if (f1) str_coment = '🌸'
-     if(f2 ) 
-          {
-               let i = Number(f2)
-               for (let index = 0; index < i; index++) {
-                    str_coment = str_coment + '💧'                    
-               }               
-          }
-if(comment) str_coment += comment
+    let commentStr = '';
+    if (f1) commentStr = '🌸';
+    if (f2) {
+      let count = Number(f2);
+      for (let index = 0; index < count; index++) {
+        commentStr = commentStr + '💧';
+      }
+    }
+    if (comment) commentStr += comment;
 
     if (!date) {
       console.warn(`Строка ${i + 2}: неверная дата "${rawDate}" — пропущена`);
@@ -121,11 +137,11 @@ if(comment) str_coment += comment
       continue;
     }
 
-    weight = weight/1000
+    // weight = weight/1000
     date.setHours(12,0,0,0)
 
-    if (str_coment) result.push({ date, weight, comment:str_coment });
-     else result.push({ date, weight });
+    if (commentStr) result.push({ date, weight, comment: commentStr });
+    else result.push({ date, weight });
   }
 
   console.log(`Прочитано строк: ${rows.length}, валидных: ${result.length}, пропущено: ${skipped}`);
@@ -147,9 +163,19 @@ async function importToMongo(
   let inserted = 0;
 
   for (const entry of entries) {
+    const update: any = {
+      $set: { weight: entry.weight }
+    };
+
+    if (entry.comment) {
+      update.$set.comment = entry.comment;
+    } else {
+      update.$unset = { comment: "" };
+    }
+
     const result = await collection.updateOne(
       { userId, date: entry.date },
-      { $set: entry.comment ? { weight: entry.weight, comment: entry.comment } : { weight: entry.weight } },
+      update,
       { upsert: true }
     );
 
@@ -184,3 +210,27 @@ main().catch((err) => {
   console.error("Ошибка:", err);
   process.exit(1);
 });
+
+
+
+
+async function deletionWeightLogs() {
+  const client = new MongoClient(MONGO_URI);
+  await client.connect();
+
+  const db = client.db(MONGO_DB);
+  const collection = db.collection(COLLECTION);
+
+  const userId = new ObjectId(USER_ID);
+
+  const result = await collection.deleteMany({ userId });
+
+  console.log(`Удалено записей: ${result.deletedCount}`);
+
+  await client.close();
+}
+
+// deletionWeightLogs().catch((err) => {
+//   console.error("Ошибка:", err);
+//   process.exit(1);
+// });

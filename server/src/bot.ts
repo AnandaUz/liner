@@ -92,7 +92,7 @@ async function addWeight(ctx: Context, user: any) {
   }
 
   const comment = match[3]?.trim();
-  const userUrl = `${process.env.BASE_URL || ''}/user/${user._id}`;
+  const userUrl = process.env.CLIENT_URL || ''//`${process.env.BASE_URL || ''}/user/${user._id}`;
 
   await ctx.reply(
     `Вес сохранён: ${weight} кг\n<a href="${userUrl}">ваша страница</a>`,
@@ -102,7 +102,7 @@ async function addWeight(ctx: Context, user: any) {
   if (ADMIN_ID) {
     await ctx.telegram.sendMessage(
       ADMIN_ID,
-      `🧿 ${user.name} : ${weight} кг\n<a href="${userUrl}">ваша страница</a>`,
+      `🧿 ${user.name} : ${weight} кг`,
       { parse_mode: 'HTML' }
     );
   }
