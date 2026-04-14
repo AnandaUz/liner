@@ -94,41 +94,7 @@ export class Desk {
         desk.className = 'desk';
         this.parent.appendChild(desk);
 
-        this.desk = desk;
-        
-        // const canvas = document.getElementById('canvas0') as HTMLCanvasElement;
-        // if (!canvas) {
-        //     console.error('Canvas #weight-chart not found');
-        //     return;
-        // }
-        // const context = canvas.getContext('2d');
-        // if (!context) {
-        //     console.error('Context 2D not found');
-        //     return;
-        // }
-        // this.ctx = context;
-        // this.canvasMain = canvas;
-
-        // this.canvasH = document.getElementById('canvasH') as HTMLCanvasElement;
-        // this.canvasV = document.getElementById('canvasV') as HTMLCanvasElement;
-
-        // const contextH = this.canvasH?.getContext('2d');
-        // const contextV = this.canvasV?.getContext('2d');
-
-        // if (!contextH || !contextV) {
-        //     console.error('Context 2D for H or V not found');
-        //     return;
-        // }
-
-        // this.ctxH = contextH;
-        // this.ctxV = contextV;
-
-        // const canvasBl = document.querySelector('.canvasBl') as HTMLElement;
-        // if (canvasBl) {
-        //     this.canvasBl = canvasBl;
-        //     this.initDrag();
-        // }
-
+        this.desk = desk;    
     }
     init(weightLogs: IWeightLog[] = []) {
 
@@ -258,7 +224,7 @@ export class Desk {
 
             let html = ''
             html += `<div class="date">${this.formatDate(data.date)}</div>`
-            html += `<div class="w">Вес: ${data.weight}</div>`
+            html += `<div class="w">Вес: ${Math.round(data.weight * 100) / 100}</div>`
             const graph0 = this.graphs[0]!
             const curr = graph0[data.ind]!
             const prev = graph0[data.ind-1]
@@ -295,7 +261,7 @@ export class Desk {
         
         const startDay = this.weightData.startDay || new Date()
         const W = this.weightData.totalDayCount * this.scale.forDay
-        const H = this.weightData.max * this.scale.forWeight
+        const H = (this.weightData.max - this.weightData.min + 10) * this.scale.forWeight
 
         svgDesk.setAttribute("width", W + 'px');
         svgDesk.setAttribute("height", H + 'px');
@@ -313,6 +279,7 @@ export class Desk {
         const w = w1+w2
         const h = this.scale.forWeight
         let s = ''
+        //- вертикальные линии
         for (let i = 0; i < 7; i++) {
             s += `<line x1="${i * this.scale.forDay}" y1="0" x2="${i * this.scale.forDay}" y2="${h}" stroke="${Options.supportLine_color}" stroke-width="${Options.supportLine_width}"/>`
         }        
@@ -327,12 +294,13 @@ export class Desk {
             size:{w:w,h:h},
             repeat:"repeat"
         }
+        //- горизонтальные линии
         const svg2 = `      
             <line x1="0" y1="0" x2="${w}" y2="0" stroke="#00000023" stroke-width="1"/>   
         `;
         bgs[3] = {
             svgStr:svg2,
-            position:{dx:0,dy:this.dYY},
+            position:{dx:0,dy:-this.dYY},
             size:{w:w,h:h},
             repeat:"repeat"
         }   
@@ -365,8 +333,7 @@ export class Desk {
             repeat:"no-repeat"
         }
         // - цифры веса ----------------
-        s = ''
-        
+        s = ''        
         const r2 = 12
         for (let i = Options.view_startWeight; i < Options.view_endWeight; i++) {
             
@@ -394,9 +361,6 @@ export class Desk {
 
         //- коментарии -------------------
         const graph0 = this.graphs[0]
-
-
-
         if (graph0) {   
             let svgContent = ''    
             const maxChars = Math.max(...graph0.map(curr => (curr?.comment?.length || 0)));
@@ -419,9 +383,7 @@ export class Desk {
                             text-anchor="start"
                             transform="rotate(-90, ${x}, ${y})"
                         >${curr.comment}</text>
-                    `;       // Нижняя точка (базовая линия)
-
-                    
+                    `;       // Нижняя точка (базовая линия)                    
                 }       
             }
             bgs[4] = {
@@ -432,7 +394,7 @@ export class Desk {
             }          
         }            
 
-//----
+        //- заполнение бэкграундов в стили ---
         let bgStr = ''
         let bgSize = ''
        
@@ -533,8 +495,7 @@ export class Desk {
         this.svg.style.transform = `translate(${dx}px, ${dy}px)`;
 
     }
-    setStartPosition() {
-
+    setStartPosition() {    
 
         let rect:DOMRect
         if (this.desk) {
@@ -543,19 +504,17 @@ export class Desk {
             rect = new DOMRect(0,0,0,0)
         }
 
-        let totalDays = 0
+        let totalDays = this.weightData.totalDayCount
         const dayInDesk = rect.width / this.scale.forDay
-        if (this.weightData.endDay && this.weightData.startDay) {
-            totalDays = (this.weightData.endDay?.getTime() - this.weightData.startDay?.getTime()) / (1000 * 60 * 60 * 24)
-        }
+        
         
         const sDay = totalDays - dayInDesk    
         
 
         if (!this.graphs[0]) return
-        let dd = Math.max(this.graphs[0].length,10)
+        let dd = Math.min(this.graphs[0].length,10)
         let sumW = 0
-        for (let i = 0; i < dd; i++) {
+        for (let i = this.graphs[0].length - dd; i < this.graphs[0].length; i++) {
             sumW += this.graphs[0][i]?.weight || 0
         }
         const middleW = sumW/dd

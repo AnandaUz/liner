@@ -91,7 +91,7 @@ async function addWeight(ctx: Context, user: any) {
     return;
   }
 
-  const comment = match[3]?.trim() || null;
+  const comment = match[3]?.trim();
   const userUrl = `${process.env.BASE_URL || ''}/user/${user._id}`;
 
   await ctx.reply(
@@ -112,9 +112,19 @@ async function addWeight(ctx: Context, user: any) {
   const dayEnd = new Date(date);
   dayEnd.setHours(23, 59, 59, 999);
 
+  const update: any = {
+    $set: { weight, date }
+  };
+
+  if (comment) {
+    update.$set.comment = comment;
+  } else {
+    update.$unset = { comment: "" };
+  }
+
   await WeightLog.findOneAndUpdate(
     { userId: user._id, date: { $gte: dayStart, $lte: dayEnd } },
-    { weight, comment, date },
+    update,
     { upsert: true, returnDocument: 'after' }
   );
 }

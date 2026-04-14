@@ -7,19 +7,20 @@ import * as path from "path";
 
 // ─── НАСТРОЙКИ (меняй только здесь) ───────────────────────────────────────────
 
-// const USER_ID = "69d4cdc6f6b8cbfd259ba80d"; // мамин
-const USER_ID = "69d4a2977985a8e16b747559"; // мой локальный
+const USER_ID = "69d4cdc6f6b8cbfd259ba80d"; // мамин
+// const USER_ID = "69d4a2977985a8e16b747559"; // мой локальный
 const SPREADSHEET_ID = process.env.G_DATA_PAGE_ID as string;  // из URL таблицы
 const SHEET_RANGE = "A2:E335";              // диапазон ячеек (без заголовка)
 
-const MONGO_URI = "mongodb://localhost:27017";
-const MONGO_DB = "liner";
+// const MONGO_URI = "mongodb://localhost:27017";
+const MONGO_URI = process.env.MONGODB_URI as string
+const MONGO_DB = process.env.MONGODB_BASE_NAME as string
 const COLLECTION = "weightlogs";
 
 // Путь к JSON-ключу сервисного аккаунта Google
 const GOOGLE_KEY_PATH = path.join(__dirname, "../.data/key_for_migration_from_google_sheets.json");
 
-let t=35
+let t=5
 // ──────────────────────────────────────────────────────────────────────────────
 
 interface IWeightLog {
@@ -121,6 +122,7 @@ if(comment) str_coment += comment
     }
 
     weight = weight/1000
+    date.setHours(12,0,0,0)
 
     if (str_coment) result.push({ date, weight, comment:str_coment });
      else result.push({ date, weight });
