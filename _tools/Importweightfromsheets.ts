@@ -19,13 +19,17 @@ const __dirname = path.dirname(__filename);
 
 // ─── НАСТРОЙКИ (меняй только здесь) ───────────────────────────────────────────
 
-// const USER_ID = "69d4cdc6f6b8cbfd259ba80d"; // мамин
+const USER_ID = "69d4cdc6f6b8cbfd259ba80d"; // мамин
+const pageName = "olya"
+const diapozon = "A2:E390"
+const koef = 1000
+
 // const USER_ID = "69d4a2977985a8e16b747559"; // мой локальный
 // const USER_ID = "69d4d8915b58b41f7f3cdd8b"; // ира
 // const pageName = "irina"
-const USER_ID = "69d4df211937a91e21900cd7"; // Парвати
-const pageName = "parvati"
-const diapozon = "A2:E6"
+// const USER_ID = "69d4df211937a91e21900cd7"; // Парвати
+// const pageName = "parvati"
+// const diapozon = "A2:E6"
 
 const SPREADSHEET_ID = process.env.G_DATA_PAGE_ID as string;  // из URL таблицы
 const SHEET_RANGE = `${pageName}!${diapozon}`;              // диапазон ячеек (без заголовка)
@@ -137,7 +141,7 @@ async function fetchFromSheets(): Promise<Array<Item>> {
       continue;
     }
 
-    // weight = weight/1000
+    weight = weight/koef
     date.setHours(12,0,0,0)
 
     if (commentStr) result.push({ date, weight, comment: commentStr });
