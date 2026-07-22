@@ -252,6 +252,7 @@ export async function doReminder(req: Request, res: Response) {
       // if (user.telegramId !== 117952884) {
       //   continue;
       // }
+
       if (!user.telegramId) continue;
       const lastWeightLog = user.weightLogs[user.weightLogs.length - 1];
       // если уже пользователь вводил сегодня данные
