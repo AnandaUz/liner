@@ -166,6 +166,8 @@ async function addWeight(ctx: Context) {
       undefined,
       resultText,
     );
+  } else {
+    await bot.telegram.sendMessage(user.telegramId, resultText);
   }
   //- сохраняем в БД
 
