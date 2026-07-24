@@ -2,7 +2,7 @@ import "../_base/server/config";
 
 import { setWebhook2, Links } from "../_base/_tools/setWebhook.js";
 
-const ngrokUrl = "caf3-92-253-194-211";
+const ngrokUrl = "b755-92-253-194-211";
 
 const apiUrl = "/api/telegram/webhook";
 

@@ -149,25 +149,44 @@ async function addWeight(ctx: Context) {
   const wDiff = lastWeightLog?.weight ? weight - lastWeightLog?.weight : 0;
 
   const comment = match[3]?.trim();
-  // const userUrl = process.env.CLIENT_URL || ""; //`${process.env.BASE_URL || ''}/user/${user._id}`;
+  const userUrl = process.env.CLIENT_URL || ""; //`${process.env.BASE_URL || ''}/user/${user._id}`;
 
   let resultText = `${fRound(weight)} ( ${wDiff >= 0 ? "+" : "-"}${fRound(Math.abs(wDiff))}) ${wDiff <= 0 ? "🔸" : "🔹"} ${comment ? `${comment}` : ""}`;
+  resultText += `<a href="${userUrl}">🔗</a>`;
 
-  //- отправка сообщения
-  await bot.telegram.deleteMessage(
-    ctx?.chat?.id || 0,
-    ctx?.message?.message_id || 0,
-  );
+  try {
+    //- отправка сообщения
+    await bot.telegram.deleteMessage(
+      ctx?.chat?.id || 0,
+      ctx?.message?.message_id || 0,
+    );
+  } catch (e) {
+    console.error("Error deleting message:", e);
+  }
+
   const botMessage = user.botMessage;
   if (botMessage) {
-    await bot.telegram.editMessageText(
-      botMessage.chatId,
-      botMessage.messageId,
-      undefined,
-      resultText,
-    );
+    try {
+      await bot.telegram.editMessageText(
+        botMessage.chatId,
+        botMessage.messageId,
+        undefined,
+        resultText,
+        { parse_mode: "HTML" },
+      );
+    } catch (err) {
+      console.warn(
+        "Не удалось отредактировать сообщение, отправляю новое:",
+        (err as Error).message,
+      );
+      await bot.telegram.sendMessage(user.telegramId, resultText, {
+        parse_mode: "HTML",
+      });
+    }
   } else {
-    await bot.telegram.sendMessage(user.telegramId, resultText);
+    await bot.telegram.sendMessage(user.telegramId, resultText, {
+      parse_mode: "HTML",
+    });
   }
   //- сохраняем в БД
 
@@ -195,7 +214,7 @@ async function addWeight(ctx: Context) {
   //- сообщение админу
 
   if (ADMIN_ID) {
-    await ctx.telegram.sendMessage(ADMIN_ID, `🧿 ${user.name}: ${resultText}`, {
+    await ctx.telegram.sendMessage(ADMIN_ID, `🤍 ${user.name}: ${resultText}`, {
       parse_mode: "HTML",
     });
   }
@@ -289,6 +308,7 @@ export async function doReminder(req: Request, res: Response) {
             (dayCount > 1
               ? `(${Math.round(dayCount)} дней с последних данных)`
               : ""),
+          { parse_mode: "HTML" },
         );
         const botMessage = {
           chatId: user.telegramId,
