@@ -115,27 +115,41 @@ async function addWeight(ctx: Context) {
   //#endregion
 
   const text = message.text.trim();
-  const regex = /^(?:(\d{2}\.\d{2}\.\d{2})\s+)?(\d+(?:[.,]\d+)?)\s*(.*)?$/;
-  const match = text.match(regex);
+  const tokens = text.split(/\s+/);
 
-  if (!match) {
-    await ctx.reply("Неверный формат. Пример: [12.06.26] 66.5 [комментарий]");
-    return;
-  }
+  const now = new Date();
+  // дата парсится только если есть ещё хотя бы один токен после неё (иначе это просто вес)
+  const dateResult = tokens.length > 1 ? parseDateToken(tokens[0], now) : null;
 
   let date: Date;
-  if (match[1]) {
-    const [day, month, year] = match[1].split(".");
-    date = new Date(`20${year}-${month}-${day}`);
+  let rest: string[];
+
+  let resultText = "";
+
+  if (dateResult) {
+    date = dateResult;
+    rest = tokens.slice(1);
+    resultText += `[ ${dateResult.getDate().toString().padStart(2, "0")}.${(dateResult.getMonth() + 1).toString().padStart(2, "0")}.${dateResult.getFullYear().toString().slice(-2)} ] `;
   } else {
-    date = new Date();
+    date = now;
+    rest = tokens;
   }
   date.setHours(12, 0, 0, 0);
 
+  const weightMatch = rest[0]?.match(/^(\d+(?:[.,]\d+)?)$/);
+  if (!weightMatch) {
+    await ctx.reply(
+      "Неверный формат. Примеры: 66.5 / 12 66.5 / 12.07 66.5 / 12/7/26 66.5 [комментарий]",
+    );
+    return;
+  }
+  const weight = Number(weightMatch[1]!.replace(",", "."));
+  const comment = rest.slice(1).join(" ").trim();
+
+  //---------------
   //
   const lastWeightLog = user.weightLogs[user.weightLogs.length - 1];
 
-  const weight = Number(match[2].replace(",", "."));
   if (Number.isNaN(weight)) {
     await ctx.reply("Не удалось распознать вес");
     return;
@@ -143,15 +157,14 @@ async function addWeight(ctx: Context) {
 
   //
   const fRound = (val: number) => {
-    return Math.round(val * 10) / 10;
+    return Math.round(val * 100) / 100;
   };
 
   const wDiff = lastWeightLog?.weight ? weight - lastWeightLog?.weight : 0;
 
-  const comment = match[3]?.trim();
   const userUrl = process.env.CLIENT_URL || ""; //`${process.env.BASE_URL || ''}/user/${user._id}`;
 
-  let resultText = `${fRound(weight)} ( ${wDiff >= 0 ? "+" : "-"}${fRound(Math.abs(wDiff))}) ${wDiff <= 0 ? "🔸" : "🔹"} ${comment ? `${comment}` : ""}`;
+  resultText += `${fRound(weight)} ( ${wDiff >= 0 ? "+" : "-"}${fRound(Math.abs(wDiff))}) ${wDiff <= 0 ? "🔸" : "🔹"} ${comment ? `${comment} ` : ""}`;
   resultText += `<a href="${userUrl}">🔗</a>`;
 
   try {
@@ -328,4 +341,38 @@ export async function doReminder(req: Request, res: Response) {
     console.error("Ошибка в doReminder:", err);
     res.status(500).send("Internal Server Error");
   }
+}
+
+function parseDateToken(token: string, now: Date): Date | null {
+  let day: number, month: number, year: number;
+
+  let m = token.match(/^(\d{1,2})$/);
+  if (m) {
+    if (Number(m[1]) > 31) {
+      return null;
+    }
+    day = Number(m[1]);
+    month = now.getMonth() + 1;
+    year = now.getFullYear();
+  } else if ((m = token.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{2,4})$/))) {
+    // 12/7/26 или 12.7.26 — полная дата
+    day = Number(m[1]);
+    month = Number(m[2]);
+    year = Number(m[3]);
+    if (m[3]!.length === 2) year += 2000;
+  } else if ((m = token.match(/^(\d{1,2})[.\/](\d{1,2})$/))) {
+    // 12.07 или 12/7 — день и месяц, год текущий
+    day = Number(m[1]);
+    month = Number(m[2]);
+    year = now.getFullYear();
+  } else {
+    return null; // не похоже на дату
+  }
+
+  if (day < 1 || day > 31 || month < 1 || month > 12) return null;
+
+  const date = new Date(year, month - 1, day);
+  if (date.getMonth() !== month - 1) return null; // напр. 31.02 — несуществующая дата
+
+  return date;
 }
