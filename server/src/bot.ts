@@ -232,9 +232,43 @@ async function addWeight(ctx: Context) {
     });
   }
 }
+// состояние: ждём ли от админа текст для рассылки
+let awaitingBroadcast = false;
+
+bot.command("admin", async (ctx) => {
+  if (!ADMIN_ID || ctx.from.id !== ADMIN_ID) {
+    return; // не админ — просто игнорируем, без ответа
+  }
+  awaitingBroadcast = true;
+  await ctx.reply(
+    "Пришли сообщение для рассылки всем подписанным. Для отмены — /cancel",
+  );
+});
+
+bot.command("cancel", async (ctx) => {
+  if (!ADMIN_ID || ctx.from.id !== ADMIN_ID) return;
+  if (awaitingBroadcast) {
+    awaitingBroadcast = false;
+    await ctx.reply("Рассылка отменена.");
+  }
+});
 
 /* Текстовые сообщения */
 bot.on("message", async (ctx) => {
+  //- адимнская рассылка
+  const message = ctx.message as any;
+  if (
+    awaitingBroadcast &&
+    ADMIN_ID &&
+    ctx.from.id === ADMIN_ID &&
+    message?.text
+  ) {
+    awaitingBroadcast = false;
+    await broadcastMessage(message.text);
+    return;
+  }
+  //-
+
   await addWeight(ctx);
 });
 
@@ -375,4 +409,31 @@ function parseDateToken(token: string, now: Date): Date | null {
   if (date.getMonth() !== month - 1) return null; // напр. 31.02 — несуществующая дата
 
   return date;
+}
+async function broadcastMessage(text: string) {
+  const users = await User.find({ telegramId: { $exists: true, $ne: null } });
+
+  let sent = 0;
+  let failed = 0;
+
+  for (const user of users) {
+    try {
+      await bot.telegram.sendMessage(user?.telegramId || 0, text);
+      sent++;
+    } catch (err) {
+      failed++;
+      console.warn(
+        `Не удалось отправить рассылку ${user.telegramId}:`,
+        (err as Error).message,
+      );
+    }
+    await new Promise((r) => setTimeout(r, 50)); // избегаем rate limit Telegram
+  }
+
+  if (ADMIN_ID) {
+    await bot.telegram.sendMessage(
+      ADMIN_ID,
+      `Рассылка завершена: отправлено ${sent}, ошибок ${failed}.`,
+    );
+  }
 }
