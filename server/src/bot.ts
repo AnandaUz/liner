@@ -267,8 +267,6 @@ bot.on("message", async (ctx) => {
     await broadcastMessage(message.text);
     return;
   }
-  //-
-
   await addWeight(ctx);
 });
 
