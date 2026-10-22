@@ -15,3 +15,15 @@ export async function getUsers(): Promise<IUser[]> {
   cache = await response.json() as IUser[];
   return cache;
 }
+
+export async function getUserById(id: string): Promise<IUser | null> {
+  if (cache) {
+    const user = cache.find(u => u.id === id);
+    if (user) return user;
+  }
+
+  const response = await fetchWithAuth(`/api/users/${id}`);
+  if (!response.ok) return null;
+
+  return await response.json() as IUser;
+}

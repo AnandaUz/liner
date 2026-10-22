@@ -14,7 +14,7 @@ c-desk {
     overflow: hidden;
     position: relative;
   }
-  svg{
+  svg {
     position: absolute;
     top: 0;
     left: 0;
@@ -23,6 +23,18 @@ c-desk {
     will-change: transform;
   }
 
+  .desk-loading, .desk-error, .desk-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #888;
+    font-size: 14px;
+  }
+
+  .desk-error {
+    color: #e53935;
+  }
 }
 .tooltip {
     position: absolute; /* Абсолютное позиционирование относительно .graph-wrapper */

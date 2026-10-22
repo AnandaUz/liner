@@ -1,7 +1,30 @@
 import { Telegraf, Context } from "telegraf";
 import { Request, Response } from "express";
+import { Types, UpdateQuery } from "mongoose";
 import { User } from "./models/User.js";
-import { WeightLog } from "./models/WeightLog.js";
+import { WeightLog, IWeightLog } from "./models/WeightLog.js";
+import { IUser } from "../../shared/types/user.js";
+
+export interface IAggregatedWeightLog {
+  _id: Types.ObjectId;
+  userId: Types.ObjectId;
+  date: Date;
+  weight: number;
+  comment?: string;
+}
+
+export interface IAggregatedUser {
+  _id: Types.ObjectId;
+  name: string;
+  telegramId?: number;
+  botMessage?: {
+    chatId: number;
+    messageId: number;
+    date: Date;
+  };
+  settings?: IUser["settings"];
+  weightLogs: IAggregatedWeightLog[];
+}
 
 const BOT_TOKEN = process.env.BOT_TOKEN || "dummy-token";
 
@@ -71,9 +94,8 @@ bot.start(async (ctx) => {
 
 /* Приём веса */
 async function addWeight(ctx: Context) {
-  if (!ctx) return;
-  const message = ctx.message as any;
-  if (!message?.text) return;
+  if (!ctx || !ctx.message || !("text" in ctx.message)) return;
+  const message = ctx.message;
 
   //#region найти юзера и записи за последний месяц
   const telegramId = ctx?.from?.id;
@@ -82,7 +104,7 @@ async function addWeight(ctx: Context) {
   const monthAgo = new Date();
   monthAgo.setDate(monthAgo.getDate() - 30);
 
-  const result = await User.aggregate([
+  const result = await User.aggregate<IAggregatedUser>([
     { $match: { telegramId: telegramId } },
     {
       $lookup: {
@@ -118,8 +140,8 @@ async function addWeight(ctx: Context) {
   const tokens = text.split(/\s+/);
 
   const now = new Date();
-  // дата парсится только если есть ещё хотя бы один токен после неё (иначе это просто вес)
-  const dateResult = tokens.length > 1 ? parseDateToken(tokens[0], now) : null;
+  const dateResult =
+    tokens.length > 1 && tokens[0] ? parseDateToken(tokens[0], now) : null;
 
   let date: Date;
   let rest: string[];
@@ -192,12 +214,17 @@ async function addWeight(ctx: Context) {
         "Не удалось отредактировать сообщение, отправляю новое:",
         (err as Error).message,
       );
-      await bot.telegram.sendMessage(user.telegramId, resultText, {
-        parse_mode: "HTML",
-      });
+      await bot.telegram.sendMessage(
+        user.telegramId || telegramId,
+        resultText,
+        {
+          parse_mode: "HTML",
+        },
+      );
     }
+    await User.findByIdAndUpdate(user._id, { $unset: { botMessage: 1 } });
   } else {
-    await bot.telegram.sendMessage(user.telegramId, resultText, {
+    await bot.telegram.sendMessage(user.telegramId || telegramId, resultText, {
       parse_mode: "HTML",
     });
   }
@@ -208,12 +235,11 @@ async function addWeight(ctx: Context) {
   const dayEnd = new Date(date);
   dayEnd.setHours(23, 59, 59, 999);
 
-  const update: any = {
+  const update: UpdateQuery<IWeightLog> = {
     $set: { weight, date },
   };
-
   if (comment) {
-    update.$set.comment = comment;
+    update.$set = { ...update.$set, comment };
   } else {
     update.$unset = { comment: "" };
   }
@@ -256,11 +282,11 @@ bot.command("cancel", async (ctx) => {
 /* Текстовые сообщения */
 bot.on("message", async (ctx) => {
   //- адимнская рассылка
-  const message = ctx.message as any;
+  const message = ctx.message && "text" in ctx.message ? ctx.message : null;
   if (
     awaitingBroadcast &&
     ADMIN_ID &&
-    ctx.from.id === ADMIN_ID &&
+    ctx.from?.id === ADMIN_ID &&
     message?.text
   ) {
     awaitingBroadcast = false;
@@ -285,7 +311,7 @@ export async function doReminder(req: Request, res: Response) {
     const monthAgo = new Date();
     monthAgo.setDate(monthAgo.getDate() - 30);
 
-    const result = await User.aggregate([
+    const result = await User.aggregate<IAggregatedUser>([
       { $match: { telegramId: { $exists: true } } },
       {
         $lookup: {
@@ -321,14 +347,17 @@ export async function doReminder(req: Request, res: Response) {
 
       if (!user.telegramId) continue;
       const lastWeightLog = user.weightLogs[user.weightLogs.length - 1];
+      const lastWeightLogDate = lastWeightLog
+        ? new Date(lastWeightLog.date)
+        : null;
       // если уже пользователь вводил сегодня данные
-      if (lastWeightLog.date >= toDay) {
+      if (lastWeightLogDate && lastWeightLogDate >= toDay) {
         continue;
       }
       try {
         // если пользователь не вводил данные, то просто меняю сообщение на новое
 
-        if (lastWeightLog && lastWeightLog.date.getTime() < toDay.getTime()) {
+        if (user.botMessage) {
           console.log(user.botMessage);
           try {
             await bot.telegram.deleteMessage(
@@ -343,9 +372,10 @@ export async function doReminder(req: Request, res: Response) {
           }
         }
 
-        const dayCount =
-          (toDay.getTime() - lastWeightLog.date.getTime()) /
-          (1000 * 60 * 60 * 24);
+        const dayCount = lastWeightLogDate
+          ? (toDay.getTime() - lastWeightLogDate.getTime()) /
+            (1000 * 60 * 60 * 24)
+          : 0;
 
         const message = await bot.telegram.sendMessage(
           user.telegramId,

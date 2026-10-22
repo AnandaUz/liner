@@ -312,6 +312,13 @@ export class Desk {
   }
 
   render() {
+    if (!this.weightLogs || this.weightLogs.length === 0) {
+      if (this.desk) {
+        this.desk.innerHTML = '<div class="desk-empty">Нет записей веса</div>';
+      }
+      return;
+    }
+
     //- svgDesk
     const svgDesk = this.svg;
 
@@ -651,8 +658,9 @@ export class Desk {
 
     const sDay = totalDays - dayInDesk;
 
-    if (!this.graphs[0]) return;
+    if (!this.graphs[0] || this.graphs[0].length === 0) return;
     let dd = Math.min(this.graphs[0].length, 10);
+    if (dd === 0) return;
     let sumW = 0;
     for (let i = this.graphs[0].length - dd; i < this.graphs[0].length; i++) {
       sumW += this.graphs[0][i]?.weight || 0;

@@ -1,6 +1,14 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
+import { ZodError } from 'zod';
 import { User } from '../models/User.js';
-import { createUserSchema } from "../schemas/user.schema.js"; // проверь путь до своей модели
+import { createUserSchema } from "../schemas/user.schema.js";
+import { IUser } from '../../../shared/types/user.js';
+
+export interface IUserLeanDoc extends Omit<IUser, 'id'> {
+    _id: Types.ObjectId;
+    __v?: number;
+}
 
 export const createUser = async (req: Request, res: Response) => {
     try {
@@ -12,15 +20,19 @@ export const createUser = async (req: Request, res: Response) => {
 
         const savedUser = await newUser.save();
         res.status(201).json(savedUser);
-    } catch (error: any) {
+    } catch (error: unknown) {
         // Если Zod найдет ошибку, он "выбросит" её сюда
-        res.status(400).json({ error: error.errors || "Ошибка валидации" });
+        if (error instanceof ZodError) {
+            res.status(400).json({ error: error.issues });
+            return;
+        }
+        res.status(400).json({ error: "Ошибка валидации" });
     }
 };
 export const getAllUsers = async (_req: Request, res: Response) => {
     try {
-        const users = await User.find({}).select('-__v').lean();
-        const mappedUsers = users.map((u: any) => {
+        const users = await User.find({}).select('-__v').lean<IUserLeanDoc[]>();
+        const mappedUsers = users.map((u: IUserLeanDoc) => {
             const { _id, ...rest } = u;
             return { id: _id, ...rest };
         });
@@ -33,13 +45,13 @@ export const getUserById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params; // Берем ID из URL: /api/users/123...
 
-        const user = await User.findById(id).lean();
+        const user = await User.findById(id).lean<IUserLeanDoc | null>();
 
         if (!user) {
             return res.status(404).json({ message: "Пользователь не найден" });
         }
 
-        const { _id, ...rest } = user as any;
+        const { _id, ...rest } = user;
         res.json({ id: _id, ...rest });
     } catch (error) {
         res.status(500).json({ message: "Ошибка сервера", error });

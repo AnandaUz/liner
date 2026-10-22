@@ -6,24 +6,26 @@ import { renderFooter } from './components/footer';
 import { authGuard } from './services/auth.guard';
 import { handleCredential } from './services/auth.service';
 
-const startGoogleAuth = async () => {
+const startGoogleAuth = () => {
   if (typeof google !== 'undefined') {
     google.accounts.id.initialize({
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       callback: handleCredential,
     });
-    await authGuard();
-    render();
-
+    const btn = document.querySelector<HTMLElement>('.google-btn');
+    if (btn) {
+      google.accounts.id.renderButton(btn, { type: 'standard', theme: 'outline', size: 'large' });
+    }
   } else {
     // Если скрипт Google еще не готов, пробуем снова через 100мс
     setTimeout(startGoogleAuth, 100);
-    render();
   }
 };
 async function init() {
+  await authGuard();
   renderHeader();
   renderFooter();
+  render();
   startGoogleAuth();
 }
 init();
