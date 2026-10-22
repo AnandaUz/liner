@@ -30,9 +30,14 @@ app.use("/api/weightLog", weightLogRoutes);
 app.post("/api/telegram/webhook", async (req, res) => {
   try {
     await bot.handleUpdate(req.body, res);
+    if (!res.headersSent) {
+      res.status(200).send("ok");
+    }
   } catch (err) {
     console.error("Webhook error:", err);
-    // res.status(200).send('ok');
+    if (!res.headersSent) {
+      res.status(200).send("ok");
+    }
   }
 });
 app.use("/api/telegram", telegramRoutes);

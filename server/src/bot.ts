@@ -92,54 +92,33 @@ bot.start(async (ctx) => {
   await ctx.reply("Привет! Зарегистрируйся на сайте и привяжи аккаунт.");
 });
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 /* Приём веса */
 async function addWeight(ctx: Context) {
   if (!ctx || !ctx.message || !("text" in ctx.message)) return;
   const message = ctx.message;
 
-  //#region найти юзера и записи за последний месяц
   const telegramId = ctx?.from?.id;
   if (!telegramId) return;
 
-  const monthAgo = new Date();
-  monthAgo.setDate(monthAgo.getDate() - 30);
-
-  const result = await User.aggregate<IAggregatedUser>([
-    { $match: { telegramId: telegramId } },
-    {
-      $lookup: {
-        from: "weightlogs", // имя коллекции в MongoDB (обычно plural + lowercase)
-        let: { userId: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$userId", "$$userId"] },
-                  { $gte: ["$date", monthAgo] },
-                ],
-              },
-            },
-          },
-          { $sort: { date: 1 } },
-        ],
-        as: "weightLogs",
-      },
-    },
-  ]);
-
-  const user = result[0];
+  const user = await User.findOne({ telegramId });
   if (!user) {
     await ctx.reply("Сначала привяжи аккаунт через сайт.");
     return;
   }
 
-  //#endregion
-
   const text = message.text.trim();
   const tokens = text.split(/\s+/);
 
-  const now = new Date();
+  const now = message.date ? new Date(message.date * 1000) : new Date();
   const dateResult =
     tokens.length > 1 && tokens[0] ? parseDateToken(tokens[0], now) : null;
 
@@ -161,32 +140,40 @@ async function addWeight(ctx: Context) {
   const weightMatch = rest[0]?.match(/^(\d+(?:[.,]\d+)?)$/);
   if (!weightMatch) {
     await ctx.reply(
-      "Неверный формат. Примеры: 66.5 / 12 66.5 / 12.07 66.5 / 12/7/26 66.5 [комментарий]",
+      "Неверный формат. Примеры: 66.5 / 12 66.5 / 12.07 66.5 / вчера 66.5 / 12/7/26 66.5 [комментарий]",
     );
     return;
   }
   const weight = Number(weightMatch[1]!.replace(",", "."));
-  const comment = rest.slice(1).join(" ").trim();
 
-  //---------------
-  //
-  const lastWeightLog = user.weightLogs[user.weightLogs.length - 1];
-
-  if (Number.isNaN(weight)) {
-    await ctx.reply("Не удалось распознать вес");
+  if (Number.isNaN(weight) || weight < 25 || weight > 350) {
+    await ctx.reply("Вес должен быть в диапазоне от 25 до 350 кг.");
     return;
   }
 
-  //
+  const comment = rest.slice(1).join(" ").trim();
+
+  const dayStart = new Date(date);
+  dayStart.setHours(0, 0, 0, 0);
+  const dayEnd = new Date(date);
+  dayEnd.setHours(23, 59, 59, 999);
+
+  const lastWeightLog = await WeightLog.findOne({
+    userId: user._id,
+    date: { $lt: dayStart },
+  })
+    .sort({ date: -1 })
+    .lean();
+
   const fRound = (val: number) => {
     return Math.round(val * 100) / 100;
   };
 
-  const wDiff = lastWeightLog?.weight ? weight - lastWeightLog?.weight : 0;
+  const wDiff = lastWeightLog?.weight ? weight - lastWeightLog.weight : 0;
+  const userUrl = process.env.CLIENT_URL || "";
+  const escapedComment = comment ? escapeHtml(comment) : "";
 
-  const userUrl = process.env.CLIENT_URL || ""; //`${process.env.BASE_URL || ''}/user/${user._id}`;
-
-  resultText += `${fRound(weight)} ( ${wDiff >= 0 ? "+" : "-"}${fRound(Math.abs(wDiff))}) ${wDiff <= 0 ? "🔸" : "🔹"} ${comment ? `${comment} ` : ""}`;
+  resultText += `${fRound(weight)} ( ${wDiff >= 0 ? "+" : "-"}${fRound(Math.abs(wDiff))}) ${wDiff <= 0 ? "🔸" : "🔹"} ${escapedComment ? `${escapedComment} ` : ""}`;
   resultText += `<a href="${userUrl}">🔗</a>`;
 
   try {
@@ -230,11 +217,6 @@ async function addWeight(ctx: Context) {
   }
   //- сохраняем в БД
 
-  const dayStart = new Date(date);
-  dayStart.setHours(0, 0, 0, 0);
-  const dayEnd = new Date(date);
-  dayEnd.setHours(23, 59, 59, 999);
-
   const update: UpdateQuery<IWeightLog> = {
     $set: { weight, date },
   };
@@ -253,7 +235,7 @@ async function addWeight(ctx: Context) {
   //- сообщение админу
 
   if (ADMIN_ID) {
-    await ctx.telegram.sendMessage(ADMIN_ID, `🤍 ${user.name}: ${resultText}`, {
+    await ctx.telegram.sendMessage(ADMIN_ID, `🤍 ${escapeHtml(user.name)}: ${resultText}`, {
       parse_mode: "HTML",
     });
   }
@@ -308,57 +290,31 @@ export async function doReminder(req: Request, res: Response) {
     const dNow = new Date();
     dNow.setHours(12, 0, 0, 0);
 
-    const monthAgo = new Date();
-    monthAgo.setDate(monthAgo.getDate() - 30);
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
 
-    const result = await User.aggregate<IAggregatedUser>([
-      { $match: { telegramId: { $exists: true } } },
-      {
-        $lookup: {
-          from: "weightlogs", // имя коллекции в MongoDB
-          let: { userId: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$userId", "$$userId"] },
-                    { $gte: ["$date", monthAgo] },
-                  ],
-                },
-              },
-            },
-            { $sort: { date: 1 } },
-          ],
-          as: "weightLogs",
-        },
-      },
-    ]);
-
-    const usersToRemind = result;
-
-    const toDay = new Date();
-    // toDay.setHours(0, 0, 0, 0);
+    const usersToRemind = await User.find({
+      telegramId: { $exists: true, $ne: null },
+    });
 
     for (const user of usersToRemind) {
-      // if (user.telegramId !== 117952884) {
-      //   continue;
-      // }
-
       if (!user.telegramId) continue;
-      const lastWeightLog = user.weightLogs[user.weightLogs.length - 1];
+
+      const lastWeightLog = await WeightLog.findOne({ userId: user._id })
+        .sort({ date: -1 })
+        .lean();
       const lastWeightLogDate = lastWeightLog
         ? new Date(lastWeightLog.date)
         : null;
+
       // если уже пользователь вводил сегодня данные
-      if (lastWeightLogDate && lastWeightLogDate >= toDay) {
+      if (lastWeightLogDate && lastWeightLogDate >= startOfToday) {
         continue;
       }
       try {
         // если пользователь не вводил данные, то просто меняю сообщение на новое
 
         if (user.botMessage) {
-          console.log(user.botMessage);
           try {
             await bot.telegram.deleteMessage(
               user.botMessage.chatId,
@@ -373,7 +329,7 @@ export async function doReminder(req: Request, res: Response) {
         }
 
         const dayCount = lastWeightLogDate
-          ? (toDay.getTime() - lastWeightLogDate.getTime()) /
+          ? (startOfToday.getTime() - lastWeightLogDate.getTime()) /
             (1000 * 60 * 60 * 24)
           : 0;
 
@@ -406,6 +362,18 @@ export async function doReminder(req: Request, res: Response) {
 }
 
 function parseDateToken(token: string, now: Date): Date | null {
+  const lower = token.toLowerCase();
+  if (lower === "вчера" || lower === "yesterday") {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 1);
+    return d;
+  }
+  if (lower === "позавчера") {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 2);
+    return d;
+  }
+
   let day: number, month: number, year: number;
 
   let m = token.match(/^(\d{1,2})$/);
