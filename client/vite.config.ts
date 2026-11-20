@@ -15,7 +15,6 @@ export default defineConfig({
       '@assets': resolve(__dirname, './src/assets'),
       '@styles': resolve(__dirname, './src/styles'),
       '@shared': resolve(__dirname, '../shared'),
-      '@base': resolve(__dirname, '../_base'),
       '@services': resolve(__dirname, './src/services'),
     },
   },

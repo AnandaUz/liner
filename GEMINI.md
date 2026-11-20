@@ -7,8 +7,6 @@
 
 # Project Keywords
 
-- If message contains `..<name>`, read `.tasks/<name>.md` first (supports Cyrillic/Latin).
-- If message contains `!<term>` (e.g. `!фрейм`, `!группа`) or a project keyword, read only that term's section in `GLOSSARY.md` before coding. Use its mapped classes/files directly without code searches. Report if term is missing.
 
 # Glossary Contribution Rules
 

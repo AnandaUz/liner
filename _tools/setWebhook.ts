@@ -1,6 +1,29 @@
-import "../_base/server/config";
+import "../server/src/config.js";
+import { Telegraf } from "telegraf";
 
-import { setWebhook3 } from "../_base/_tools/setWebhook.js";
+export interface WebhookConfig {
+  BOT_TOKEN: string;
+  SERVER_URL: string;
+  apiURL: string;
+  name?: string;
+}
+
+export async function setWebhook3(config: WebhookConfig) {
+  const bot_token = config.BOT_TOKEN;
+  const url = config.SERVER_URL;
+  const apiUrl = config.apiURL;
+  const resultStr = `✅ ${config.name || ""}`;
+
+  try {
+    const bot = new Telegraf(bot_token);
+    const result = await bot.telegram.setWebhook(url + apiUrl);
+    console.log(resultStr);
+    console.log(url + apiUrl);
+    console.log(result);
+  } catch (e) {
+    console.error("Ошибка при настройке бота:", e);
+  }
+}
 
 const ngrokUrl = "7d2b-92-253-194-211";
 

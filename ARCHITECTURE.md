@@ -36,9 +36,6 @@ liner/
 │   │   └── index.ts     # Точка входа сервера и вебхук Telegram
 ├── shared/              # Общие типы для клиента и сервера
 │   └── types/           # IUser, IGoal, IWeightLog
-├── _base/               # Git-субмодуль с переиспользуемыми модулями
-│   ├── server/          # db.ts (подключение к Mongo), config.ts (загрузка .env)
-│   └── client/          # EventEmitter, базовые SCSS
 ├── _tools/              # Утилиты миграции и сопровождения
 │   ├── Importweightfromsheets.ts # Импорт из Google Sheets API
 │   ├── setWebhook.ts    # Настройка Webhook для ngrok/production

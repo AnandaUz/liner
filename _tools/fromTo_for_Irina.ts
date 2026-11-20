@@ -1,4 +1,4 @@
-import '../_base/server/config'
+import '../server/src/config.js';
 
 import { google } from "googleapis";
 import * as path from "path";
